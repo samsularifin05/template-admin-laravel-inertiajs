@@ -1,4 +1,4 @@
-import { Head, useForm } from "@inertiajs/react";
+import { Head, useForm, router } from "@inertiajs/react";
 import { useState } from "react";
 import {
     IconMail,
@@ -19,7 +19,8 @@ export default function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post("/login");
+        // post("/login");
+        router.visit("/dashboard");
     };
 
     return (

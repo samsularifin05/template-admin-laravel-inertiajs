@@ -138,7 +138,7 @@ export default function SubscriptionTableExample() {
                 return (
                     <div
                         className={clsx(
-                            "inline-flex items-center px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] shadow-sm",
+                            "inline-flex items-center px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm",
                             colors[val] || "bg-slate-500 text-white",
                         )}
                     >

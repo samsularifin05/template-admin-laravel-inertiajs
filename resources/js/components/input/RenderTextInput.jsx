@@ -1,6 +1,23 @@
 import React, { useState } from "react";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
+/**
+ * @param {Object} props
+ * @param {string} props.name
+ * @param {string | number} props.value
+ * @param {(value: string) => void} props.onChange
+ * @param {string} [props.placeholder='']
+ * @param {boolean} [props.readOnly=false]
+ * @param {string} [props.label='']
+ * @param {import("react").HTMLInputTypeAttribute} [props.type='text']
+ * @param {boolean} [props.required=false]
+ * @param {string} [props.className='']
+ * @param {string | null} [props.error=null]
+ * @param {import("react").KeyboardEventHandler} [props.onKeyDown]
+ * @param {boolean} [props.isRp=false]
+ * @param {number | string} [props.min]
+ * @param {number | string} [props.max]
+ */
 const InertiaTextInput = ({
     name,
     value,
@@ -43,6 +60,7 @@ const InertiaTextInput = ({
                     onKeyDown={onKeyDown}
                     min={min}
                     max={max}
+                    autoComplete="off"
                     value={
                         isRp && value
                             ? formatRupiah(value.toString())
@@ -51,7 +69,7 @@ const InertiaTextInput = ({
                     className={`
                         w-full border border-gray-300 h-10 rounded-lg px-4 py-2 
                         bg-white placeholder-gray-400
-                        focus:outline-none focus:ring-2 focus:ring-[#57A7C6]
+                        focus:outline-none focus:ring-2 focus:ring-theme-500
                         ${isPassword ? "pr-10" : ""}
                         ${readOnly ? "bg-gray-100 text-gray-500" : ""}
                         ${error ? "border-red-500 focus:ring-red-500" : ""}
@@ -68,8 +86,7 @@ const InertiaTextInput = ({
                 />
 
                 {isPassword && (
-                    <button
-                        type="button"
+                    <span
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute inset-y-0 right-3 flex items-center text-gray-500"
                     >
@@ -78,7 +95,7 @@ const InertiaTextInput = ({
                         ) : (
                             <IconEye size={18} />
                         )}
-                    </button>
+                    </span>
                 )}
             </div>
 

@@ -110,31 +110,19 @@ const isAdmin = [
             },
         ],
     },
-];
-const isJobseeker = [
     {
-        label: "Dasbor",
-        icon: IconLayoutDashboard,
-        href: "/jobseeker/dashboard",
-    },
-    {
-        label: "Lamaran Saya",
-        icon: IconClipboardList,
+        label: "Komponen",
+        icon: IconWorld,
         children: [
             {
-                label: "Semua Lamaran",
+                label: "Showcase Utama",
+                icon: IconClipboardList,
+                href: "/admin/examples/components",
+            },
+            {
+                label: "Subscription Table",
                 icon: IconList,
-                href: "/jobseeker/applications",
-            },
-            {
-                label: "Sedang Diproses",
-                icon: IconBell,
-                href: "/jobseeker/applications/pending",
-            },
-            {
-                label: "Diterima",
-                icon: IconShield,
-                href: "/jobseeker/applications/accepted",
+                href: "/admin/examples/subscriptions",
             },
         ],
     },
@@ -145,17 +133,17 @@ export default function Sidebar() {
     const { isOpen, toggleSidebar, setSidebarOpen } = useSidebarStore();
     const isMobile = useIsMobile();
 
-    let menuData = [];
+    let menuData = isAdmin;
 
-    if (auth?.user) {
-        if (auth?.user.user_type === "admin") {
-            menuData = isAdmin;
-        } else if (auth?.user.user_type === "jobseeker") {
-            menuData = isJobseeker;
-        }
-    } else {
-        menuData = isAdmin;
-    }
+    // if (auth?.user) {
+    //     if (auth?.user.user_type === "admin") {
+    //         menuData = isAdmin;
+    //     } else if (auth?.user.user_type === "jobseeker") {
+    //         menuData = isJobseeker;
+    //     }
+    // } else {
+    //     menuData = isAdmin;
+    // }
 
     const url = window.location.pathname;
 
@@ -180,7 +168,7 @@ export default function Sidebar() {
                     className="fixed inset-0 bg-black/50 z-40"
                     onClick={() => setSidebarOpen(false)}
                 />
-                <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-gray-50 border-r border-gray-200 flex flex-col transition-transform duration-300 transform translate-x-0">
+                <aside className="fixed inset-y-0 left-0 z-50 w-80 bg-content border-r border-stroke flex flex-col transition-transform duration-300 transform translate-x-0 shadow-premium">
                     <SidebarContent
                         auth={auth}
                         menuData={menuData}
@@ -206,7 +194,7 @@ export default function Sidebar() {
 
     // Desktop Open
     return (
-        <aside className="w-72 h-screen flex flex-col bg-gray-50 border-r border-gray-200 transition-all duration-300">
+        <aside className="w-80 h-screen flex flex-col bg-content border-r border-stroke transition-all duration-300">
             <SidebarContent
                 auth={auth}
                 menuData={menuData}
@@ -251,16 +239,16 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
     const paddingLeftValue = level === 0 ? 16 : 16 + level * 24;
 
     return (
-        <div>
+        <div className="w-full">
             {/* Parent Menu Item */}
             {hasChildren ? (
                 <button
                     onClick={handleClick}
                     style={{ paddingLeft: `${paddingLeftValue}px` }}
-                    className={`w-full flex items-center justify-between gap-3 pr-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
+                    className={`w-full flex items-center justify-between gap-3 pr-4 py-3.5 rounded-2xl text-sm transition-all duration-300 cursor-pointer ${
                         shouldHighlight
-                            ? "bg-blue-50 text-primary shadow-sm"
-                            : "text-gray-600 hover:bg-gray-100"
+                            ? "bg-primary/5 text-primary font-black shadow-premium-sm"
+                            : "text-main hover:bg-page font-medium"
                     }`}
                 >
                     <div className="flex items-center gap-3">
@@ -270,19 +258,19 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
                                 className={
                                     shouldHighlight
                                         ? "text-primary"
-                                        : "text-gray-500"
+                                        : "text-muted opacity-70"
                                 }
                             />
                         )}
-                        <span>{item.label}</span>
+                        <span className="tracking-tight">{item.label}</span>
                     </div>
                     <IconChevronDown
                         size={16}
-                        className={`transition-transform duration-200 ${
-                            isExpanded ? "rotate-180" : ""
-                        } ${
-                            shouldHighlight ? "text-primary" : "text-gray-400"
-                        }`}
+                        className={`transition-transform duration-300 ${
+                            isExpanded
+                                ? "rotate-0 shadow-lg"
+                                : "-rotate-90 opacity-40"
+                        } ${shouldHighlight ? "text-primary opacity-100" : "text-muted"}`}
                     />
                 </button>
             ) : (
@@ -290,21 +278,23 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
                     href={item.href}
                     onClick={handleClick}
                     style={{ paddingLeft: `${paddingLeftValue}px` }}
-                    className={`flex items-center gap-3 pr-4 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer ${
+                    className={`flex items-center gap-3 pr-4 py-3.5 rounded-2xl text-sm transition-all duration-300 cursor-pointer ${
                         isItemActive
-                            ? "bg-blue-50 text-primary font-medium shadow-sm"
-                            : "text-gray-600 hover:bg-gray-100"
+                            ? "bg-primary text-white font-black shadow-premium shadow-primary/20 scale-[1.02]"
+                            : "text-main hover:bg-page font-medium"
                     }`}
                 >
                     {Icon && (
                         <Icon
                             size={20}
                             className={
-                                isItemActive ? "text-primary" : "text-gray-500"
+                                isItemActive
+                                    ? "text-white"
+                                    : "text-muted opacity-70"
                             }
                         />
                     )}
-                    <span>{item.label}</span>
+                    <span className="tracking-tight">{item.label}</span>
                 </Link>
             )}
 
@@ -344,15 +334,15 @@ const SidebarContent = ({
 }) => (
     <>
         {/* Header / Logo */}
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+        <div className="p-6 pb-2 flex justify-between h-20 items-center">
             <div className="flex items-center gap-3">
                 <img
                     src={LogoImg}
-                    alt="Join Joboffer Indonesia"
-                    className="h-12 w-auto object-contain"
+                    alt="Logo"
+                    className="h-10 w-auto object-contain"
                 />
-                <div className="bg-blue-50 px-4 py-2 rounded-full">
-                    <div className="text-sm font-bold text-primary whitespace-nowrap">
+                <div className="bg-primary/5 px-3 py-1.5 rounded-xl border border-primary/10">
+                    <div className="text-[10px] font-black text-primary tracking-widest whitespace-nowrap uppercase">
                         {auth?.user?.user_type === "admin" ? "ADMIN" : "USER"}{" "}
                         PANEL
                     </div>
@@ -361,8 +351,8 @@ const SidebarContent = ({
         </div>
 
         {/* User Profile Card */}
-        <div className="p-4">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+        <div className="p-4 px-6 md:p-6 md:px-6">
+            <div className="bg-card rounded-2xl p-4 shadow-premium border border-stroke transition-all duration-300 hover:shadow-premium-lg">
                 <div className="flex items-center gap-3">
                     <img
                         src={
@@ -370,14 +360,14 @@ const SidebarContent = ({
                                 ? `/storage/${auth?.user?.profile_photo}`
                                 : DefaultFoto
                         }
-                        alt="User Avatar"
-                        className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+                        alt="User"
+                        className="w-12 h-12 rounded-xl object-cover border border-stroke"
                     />
                     <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-gray-800 text-sm truncate">
+                        <div className="font-black text-main text-sm truncate">
                             {auth?.user?.username || "Cara Goyette"}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-[11px] text-muted font-medium truncate">
                             {auth?.user?.email || "cara.goyette@example.com"}
                         </div>
                     </div>
@@ -386,7 +376,7 @@ const SidebarContent = ({
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 px-4 pb-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 md:px-6 pb-6 space-y-2 overflow-y-auto mt-2">
             {menuData.map((menu, index) => (
                 <MenuItem
                     key={index}
@@ -399,9 +389,9 @@ const SidebarContent = ({
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200">
-            <div className="text-xs text-gray-400 text-center">
-                Join Joboffer v1.0
+        <div className="p-6 border-t border-stroke">
+            <div className="text-[10px] font-black text-muted text-center tracking-widest uppercase opacity-50">
+                Themes App v1.0
             </div>
         </div>
     </>

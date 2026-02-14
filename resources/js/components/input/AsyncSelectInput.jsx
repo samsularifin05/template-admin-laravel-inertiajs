@@ -1,29 +1,53 @@
 import React from "react";
 import AsyncSelect from "react-select/async";
 import Select from "react-select";
-import axios from "axios";
+import { usePage } from "@inertiajs/react";
+import api from "../../services/api"; // Use configured API
 
+/**
+ * @param {Object} props
+ * @param {string} [props.label]
+ * @param {any} props.value
+ * @param {(value: any) => void} props.onChange
+ * @param {string} [props.placeholder='Select...']
+ * @param {string | null} [props.error]
+ * @param {string} [props.loadOptionsUrl] URL to fetch options from
+ * @param {(item: any) => {label: string, value: any}} [props.mapOption] Function to map raw data to select options
+ * @param {boolean} [props.isSearchable=true]
+ * @param {boolean} [props.isClearable=false]
+ */
 const AsyncSelectInput = ({
     label,
     value,
     onChange,
     placeholder = "Select...",
     error,
-    loadOptionsUrl, // For async mode
-    options, // For manual mode
+    loadOptionsUrl, // Add this
+    mapOption = (item) => ({ label: item.name, value: item.id }),
     isSearchable = true,
+    isClearable = false,
 }) => {
     const loadOptions = async (inputValue) => {
         try {
-            const response = await axios.get(loadOptionsUrl, {
+            const response = await api.get(loadOptionsUrl, {
                 params: { search: inputValue },
             });
-            return response.data;
+
+            // Handle Laravel Pagination (response.data.data) or simple array (response.data)
+            const rawData = response.data.data || response.data;
+
+            if (Array.isArray(rawData)) {
+                return rawData.map(mapOption);
+            }
+            return [];
         } catch (error) {
             console.error("Error loading options:", error);
             return [];
         }
     };
+
+    const { store } = usePage().props;
+    const themeColor = store?.theme_color || "#ea580c";
 
     const customStyles = {
         control: (provided, state) => ({
@@ -33,7 +57,7 @@ const AsyncSelectInput = ({
             paddingTop: "2px",
             paddingBottom: "2px",
             backgroundColor: "#ffffff", // gray-50
-            boxShadow: state.isFocused ? "0 0 0 2px #57A7C6" : "none",
+            boxShadow: state.isFocused ? `0 0 0 2px ${themeColor}` : "none",
             "&:hover": {
                 borderColor: "#d1d5db",
             },
@@ -52,36 +76,37 @@ const AsyncSelectInput = ({
             ...provided,
             zIndex: 9999,
         }),
+        menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Add this
     };
 
     // Determine which mode to use
     const isAsyncMode = !!loadOptionsUrl;
+
+    const commonProps = {
+        onChange,
+        value,
+        placeholder,
+        styles: customStyles,
+        classNamePrefix: "react-select",
+        isSearchable,
+        isClearable,
+        menuPortalTarget:
+            typeof document !== "undefined" ? document.body : null, // Portal to body
+        menuPosition: "fixed", // Required for portal
+    };
 
     return (
         <div className="w-full">
             {label && <label className="block text-base mb-1">{label}</label>}
             {isAsyncMode ? (
                 <AsyncSelect
+                    {...commonProps}
                     cacheOptions
                     defaultOptions
                     loadOptions={loadOptions}
-                    onChange={onChange}
-                    value={value}
-                    placeholder={placeholder}
-                    styles={customStyles}
-                    classNamePrefix="react-select"
-                    isSearchable={isSearchable}
                 />
             ) : (
-                <Select
-                    options={options}
-                    onChange={onChange}
-                    value={value}
-                    placeholder={placeholder}
-                    styles={customStyles}
-                    classNamePrefix="react-select"
-                    isSearchable={isSearchable}
-                />
+                <Select {...commonProps} options={options} />
             )}
             {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
         </div>

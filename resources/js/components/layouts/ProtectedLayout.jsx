@@ -3,6 +3,7 @@ import Sidebar from "./Sidebar";
 import Navigation from "./Navigation";
 import { useIsMobile } from "@/utils/isMobile";
 import { Toaster } from "react-hot-toast";
+import { Head } from "@inertiajs/react";
 
 export default function ProtectedLayout({ children, title = "Halaman Admin" }) {
     useEffect(() => {
@@ -12,7 +13,8 @@ export default function ProtectedLayout({ children, title = "Halaman Admin" }) {
     const isMobile = useIsMobile();
     return (
         <>
-            <div className="flex h-screen overflow-hidden bg-gray-100">
+            <Head title={title} />
+            <div className="flex h-screen overflow-hidden bg-page text-main transition-colors duration-300">
                 {/* Fixed Sidebar */}
                 <Sidebar />
 
@@ -22,7 +24,7 @@ export default function ProtectedLayout({ children, title = "Halaman Admin" }) {
                     <main
                         className={`flex-1 overflow-y-auto ${
                             isMobile ? "p-4" : "p-6"
-                        } bg-gray-50`}
+                        } bg-content transition-colors duration-300`}
                     >
                         {children}
                     </main>

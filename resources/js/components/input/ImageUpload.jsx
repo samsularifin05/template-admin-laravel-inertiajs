@@ -2,6 +2,15 @@ import React, { useState, useEffect } from "react";
 import { IconUpload, IconX, IconPhoto } from "@tabler/icons-react";
 import axios from "axios";
 
+/**
+ * @param {Object} props
+ * @param {string} [props.label]
+ * @param {string} props.value
+ * @param {(path: string) => void} props.onChange
+ * @param {string | null} [props.error]
+ * @param {boolean} [props.preview=true]
+ * @param {string} [props.currentPath=""] Path used for deleting old files
+ */
 const ImageUpload = ({
     label,
     value,
@@ -53,7 +62,7 @@ const ImageUpload = ({
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
-                }
+                },
             );
 
             setPreviewUrl(response.data.url);
@@ -62,7 +71,7 @@ const ImageUpload = ({
             console.error("Upload error:", error);
             alert(
                 "Gagal mengupload gambar: " +
-                    (error.response?.data?.message || error.message)
+                    (error.response?.data?.message || error.message),
             );
         } finally {
             setUploading(false);

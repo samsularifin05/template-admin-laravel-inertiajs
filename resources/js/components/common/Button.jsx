@@ -4,13 +4,14 @@ import React from "react";
  * @param {Object} props
  * @param {React.ReactNode} props.children
  * @param {'button' | 'submit' | 'reset'} [props.type='button']
- * @param {'primary' | 'secondary' | 'danger' | 'success' | 'outline' | 'ghost'} [props.variant='primary']
+ * @param {'default' | 'primary' | 'secondary' | 'danger' | 'success' | 'outline' | 'ghost'} [props.variant='primary']
  * @param {'xs' | 'sm' | 'md' | 'lg' | 'xl'} [props.size='md']
  * @param {boolean} [props.disabled=false]
  * @param {boolean} [props.loading=false]
  * @param {Function} [props.onClick]
  * @param {string} [props.className='']
  * @param {boolean} [props.fullWidth=false]
+ * @param {boolean} [props.iconOnly=false]
  * @param {import("@tabler/icons-react").Icon} [props.icon]
  * @param {'left' | 'right'} [props.iconPosition='left']
  */
@@ -24,13 +25,17 @@ const Button = ({
     onClick,
     className = "",
     fullWidth = false,
+    iconOnly = false,
     icon: Icon,
     iconPosition = "left",
+    ...rest
 }) => {
     const baseStyles =
         "inline-flex items-center justify-center font-black rounded-2xl transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
     const variants = {
+        default:
+            "border border-stroke bg-card text-main hover:border-primary/50 hover:bg-page hover:text-primary",
         primary:
             "bg-primary hover:opacity-90 text-white shadow-premium shadow-primary/20 focus:ring-primary active:scale-[0.98]",
         secondary:
@@ -44,11 +49,11 @@ const Button = ({
     };
 
     const sizes = {
-        xs: "px-3 py-1.5 text-xs gap-1",
-        sm: "px-4 py-2 text-sm gap-2",
-        md: "px-5 py-3 text-base gap-2",
-        lg: "px-6 py-4 text-lg gap-3",
-        xl: "px-8 py-5 text-xl gap-3",
+        xs: iconOnly ? "size-7" : "px-3 py-1.5 text-xs gap-1",
+        sm: iconOnly ? "size-8" : "px-4 py-2 text-sm gap-2",
+        md: iconOnly ? "size-9" : "px-5 py-3 text-base gap-2",
+        lg: iconOnly ? "size-10" : "px-6 py-4 text-lg gap-3",
+        xl: iconOnly ? "size-12" : "px-8 py-5 text-xl gap-3",
     };
 
     const widthClass = fullWidth ? "w-full" : "";
@@ -58,7 +63,8 @@ const Button = ({
             type={type}
             disabled={disabled || loading}
             onClick={onClick}
-            className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${widthClass} ${className}`}
+            className={`${baseStyles} ${variants[variant] ?? variants.default} ${sizes[size]} ${widthClass} ${className}`}
+            {...rest}
         >
             {loading ? (
                 <>

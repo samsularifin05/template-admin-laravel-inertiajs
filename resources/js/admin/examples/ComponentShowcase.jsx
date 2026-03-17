@@ -4,6 +4,8 @@ import Button from "@/components/common/Button";
 import TextInput from "@/components/input/RenderTextInput";
 import RenderTextArea from "@/components/input/RenderTextArea";
 import ImageUpload from "@/components/input/ImageUpload";
+import AsyncSelectInput from "@/components/input/AsyncSelectInput";
+import ToggleCheckbox from "@/components/input/ToggleCheckbox";
 import Modal from "@/components/common/Modal";
 import DataTable from "@/components/common/DataTable";
 import IconPicker from "@/components/common/IconPicker";
@@ -14,13 +16,24 @@ import ThemeSwitcher from "@/components/common/ThemeSwitcher";
 import AdvancedDataTable from "@/components/common/AdvancedDataTable";
 
 export default function ComponentShowcase() {
+    const [textRp, setRp] = useState("");
     const [text, setText] = useState("");
     const [textArea, setTextArea] = useState("");
     const [image, setImage] = useState("");
+    const [statusOption, setStatusOption] = useState(null);
+    const [userOption, setUserOption] = useState(null);
+    const [isPublished, setIsPublished] = useState(true);
+    const [sendNotification, setSendNotification] = useState(false);
     const [selectedIcon, setSelectedIcon] = useState("IconClick");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScrollModalOpen, setIsScrollModalOpen] = useState(false);
     const [isInnerScrollOpen, setIsInnerScrollOpen] = useState(false);
+
+    const statusOptions = [
+        { value: "draft", label: "Draft" },
+        { value: "published", label: "Published" },
+        { value: "archived", label: "Archived" },
+    ];
 
     const columns = [
         { header: "Name", accessor: "name" },
@@ -115,8 +128,9 @@ export default function ComponentShowcase() {
 
                             <TextInput
                                 label="Currency Input (isRp)"
-                                value={text}
-                                onChange={setText}
+                                value={textRp}
+                                onChange={setRp}
+                                placeholder="Currency format..."
                                 isRp
                             />
 
@@ -133,7 +147,60 @@ export default function ComponentShowcase() {
                                 label="Image Upload"
                                 value={image}
                                 onChange={setImage}
+                                multiple
                             />
+
+                            <AsyncSelectInput
+                                label="AsyncSelectInput (Static Options)"
+                                placeholder="Pilih status..."
+                                value={statusOption}
+                                onChange={setStatusOption}
+                                options={statusOptions}
+                                isClearable
+                            />
+                            <p className="-mt-3 text-xs text-gray-500">
+                                Selected: {statusOption?.label || "-"}
+                            </p>
+
+                            <AsyncSelectInput
+                                label="AsyncSelectInput (Async Search)"
+                                placeholder="Cari user demo..."
+                                value={userOption}
+                                onChange={setUserOption}
+                                loadOptionsUrl="/admin/examples/async-options"
+                                mapOption={(item) => ({
+                                    label: `${item.name} (${item.role})`,
+                                    value: item.id,
+                                })}
+                                isClearable
+                            />
+                            <p className="-mt-3 text-xs text-gray-500">
+                                Selected: {userOption?.label || "-"}
+                            </p>
+
+                            <div className="space-y-4 rounded-2xl border border-stroke p-4">
+                                <ToggleCheckbox
+                                    name="is_published"
+                                    label="ToggleCheckbox: Published"
+                                    description="Aktifkan untuk menampilkan konten ke user."
+                                    checked={isPublished}
+                                    onChange={setIsPublished}
+                                />
+
+                                <ToggleCheckbox
+                                    name="send_notification"
+                                    label="ToggleCheckbox: Send Notification"
+                                    description="Kirim notifikasi setelah data berhasil disimpan."
+                                    checked={sendNotification}
+                                    onChange={setSendNotification}
+                                />
+
+                                <p className="text-xs text-gray-500">
+                                    Published: {isPublished ? "Yes" : "No"} |
+                                    Notification:{" "}
+                                    {sendNotification ? "Yes" : "No"}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -146,16 +213,15 @@ export default function ComponentShowcase() {
 
                     <div className="flex flex-col md:flex-row gap-8">
                         <div className="flex-1 space-y-4">
-                            <div className="flex items-center gap-4">
-                                <SelectedIconComponent
-                                    size={48}
-                                    className="text-theme-600 p-2 bg-theme-50 rounded-xl"
-                                />
+                            <div className="flex items-center gap-4 rounded-2xl border border-stroke bg-page p-4">
+                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary shadow-sm">
+                                    <SelectedIconComponent size={34} />
+                                </div>
                                 <div>
-                                    <p className="text-sm font-bold text-gray-800">
+                                    <p className="text-sm font-bold text-main">
                                         {selectedIcon}
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-muted">
                                         Selected Icon Name
                                     </p>
                                 </div>

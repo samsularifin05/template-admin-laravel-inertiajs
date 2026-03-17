@@ -17,7 +17,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->prefix('admin')->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-    
+
     Route::get('/dashboard', function () {
         return Inertia::render('admin/dashboard/index', [
             'appName' => config('app.name', 'Laravel'),
@@ -27,6 +27,27 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/examples/components', function () {
         return Inertia::render('admin/examples/ComponentShowcase');
     })->name('examples.components');
+
+    Route::get('/examples/async-options', function () {
+        $search = strtolower((string) request('search', ''));
+
+        $items = collect([
+            ['id' => 1, 'name' => 'John Doe', 'role' => 'Admin'],
+            ['id' => 2, 'name' => 'Jane Smith', 'role' => 'Manager'],
+            ['id' => 3, 'name' => 'Michael Johnson', 'role' => 'Editor'],
+            ['id' => 4, 'name' => 'Sarah Wilson', 'role' => 'Staff'],
+            ['id' => 5, 'name' => 'David Brown', 'role' => 'User'],
+        ])->filter(function ($item) use ($search) {
+            if ($search === '') {
+                return true;
+            }
+
+            return str_contains(strtolower($item['name']), $search)
+                || str_contains(strtolower($item['role']), $search);
+        })->values();
+
+        return response()->json($items);
+    })->name('examples.async-options');
 
     Route::get('/examples/subscriptions', function () {
         return Inertia::render('admin/examples/SubscriptionTableExample');

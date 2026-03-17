@@ -48,7 +48,11 @@ const InertiaTextInput = ({
 
     return (
         <div className="w-full">
-            {label && <label className="block text-base mb-1">{label}</label>}
+            {label && (
+                <label className="block text-base mb-1 text-main">
+                    {label}
+                </label>
+            )}
 
             <div className="relative">
                 <input
@@ -67,11 +71,12 @@ const InertiaTextInput = ({
                             : value || ""
                     }
                     className={`
-                        w-full border border-gray-300 h-10 rounded-lg px-4 py-2 
-                        bg-white placeholder-gray-400
-                        focus:outline-none focus:ring-2 focus:ring-theme-500
-                        ${isPassword ? "pr-10" : ""}
-                        ${readOnly ? "bg-gray-100 text-gray-500" : ""}
+                        w-full h-11 rounded-2xl border px-4 py-2.5
+                        border-stroke bg-card text-main placeholder:text-muted
+                        shadow-sm transition-colors
+                        focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+                        ${isPassword ? "pr-11" : ""}
+                        ${readOnly ? "bg-page text-muted cursor-not-allowed" : ""}
                         ${error ? "border-red-500 focus:ring-red-500" : ""}
                         ${className}
                     `}
@@ -88,7 +93,7 @@ const InertiaTextInput = ({
                 {isPassword && (
                     <span
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                        className="absolute inset-y-0 right-3 flex items-center text-muted transition-colors hover:text-primary"
                     >
                         {showPassword ? (
                             <IconEyeOff size={18} />

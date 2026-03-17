@@ -5,13 +5,13 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
 import { createColumnHelper } from "@tanstack/react-table";
-import { IconEye, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconEye, IconEdit, IconTrash, IconPlus } from "@tabler/icons-react";
 import { IconSearch } from "@tabler/icons-react";
 import { IconDotsVertical } from "@tabler/icons-react";
 import clsx from "clsx";
 
-// Data exactly matching the screenshot
-const initialSubscriptions = [
+// Base data used to generate a larger demo dataset
+const baseSubscriptions = [
     {
         subscription_id: 1,
         user_name: "Hilliard Touret",
@@ -85,6 +85,25 @@ const initialSubscriptions = [
     },
 ];
 
+const formatDate = (date) => date.toISOString().split("T")[0];
+
+const initialSubscriptions = Array.from({ length: 100 }, (_, index) => {
+    const template = baseSubscriptions[index % baseSubscriptions.length];
+    const purchaseDate = new Date(template.purchase_date);
+    purchaseDate.setDate(purchaseDate.getDate() + index * 3);
+
+    const renewalDate = new Date(template.renewal_date);
+    renewalDate.setDate(renewalDate.getDate() + index * 3);
+
+    return {
+        ...template,
+        subscription_id: index + 1,
+        user_name: `${template.user_name} ${index + 1}`,
+        purchase_date: formatDate(purchaseDate),
+        renewal_date: formatDate(renewalDate),
+    };
+});
+
 const columnHelper = createColumnHelper();
 
 export default function SubscriptionTableExample() {
@@ -94,12 +113,12 @@ export default function SubscriptionTableExample() {
         setData((prev) => prev.filter((item) => item.subscription_id !== id));
     };
 
-    const handleBulkDelete = (selectedRows) => {
-        const idsToDelete = selectedRows.map((r) => r.original.subscription_id);
-        setData((prev) =>
-            prev.filter((item) => !idsToDelete.includes(item.subscription_id)),
-        );
-    };
+    // const handleBulkDelete = (selectedRows) => {
+    //     const idsToDelete = selectedRows.map((r) => r.original.subscription_id);
+    //     setData((prev) =>
+    //         prev.filter((item) => !idsToDelete.includes(item.subscription_id)),
+    //     );
+    // };
 
     const columns = [
         columnHelper.accessor("user_name", {
@@ -214,7 +233,37 @@ export default function SubscriptionTableExample() {
                     <AdvancedDataTable
                         columns={columns}
                         data={data}
-                        onBulkDelete={handleBulkDelete}
+                        actions={{
+                            toolbar: [
+                                {
+                                    key: "create",
+                                    icon: <IconPlus size={18} />,
+                                    label: "Tambah Data",
+                                    variant: "primary",
+                                    onClick: () => alert("Aksi tambah data"),
+                                },
+                            ],
+                            row: [
+                                {
+                                    key: "edit",
+                                    icon: <IconEdit size={18} />,
+                                    label: "Edit Data",
+                                    onClick: ({ row }) =>
+                                        alert(`Edit ${row.original.user_name}`),
+                                },
+                                {
+                                    key: "delete",
+                                    icon: <IconTrash size={18} />,
+                                    label: "Hapus Data",
+                                    variant: "danger",
+                                    onClick: ({ row }) =>
+                                        handleDelete(
+                                            row.original.subscription_id,
+                                        ),
+                                },
+                            ],
+                        }}
+                        // onBulkDelete={handleBulkDelete}
                     />
                 </div>
             </div>

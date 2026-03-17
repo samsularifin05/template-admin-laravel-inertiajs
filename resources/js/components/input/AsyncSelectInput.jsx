@@ -1,8 +1,7 @@
 import React from "react";
 import AsyncSelect from "react-select/async";
 import Select from "react-select";
-import { usePage } from "@inertiajs/react";
-import api from "../../services/api"; // Use configured API
+import axios from "axios";
 
 /**
  * @param {Object} props
@@ -12,6 +11,7 @@ import api from "../../services/api"; // Use configured API
  * @param {string} [props.placeholder='Select...']
  * @param {string | null} [props.error]
  * @param {string} [props.loadOptionsUrl] URL to fetch options from
+ * @param {Array<{label: string, value: any}>} [props.options=[]] Static options for non-async mode
  * @param {(item: any) => {label: string, value: any}} [props.mapOption] Function to map raw data to select options
  * @param {boolean} [props.isSearchable=true]
  * @param {boolean} [props.isClearable=false]
@@ -22,14 +22,15 @@ const AsyncSelectInput = ({
     onChange,
     placeholder = "Select...",
     error,
-    loadOptionsUrl, // Add this
+    loadOptionsUrl,
+    options = [],
     mapOption = (item) => ({ label: item.name, value: item.id }),
     isSearchable = true,
     isClearable = false,
 }) => {
     const loadOptions = async (inputValue) => {
         try {
-            const response = await api.get(loadOptionsUrl, {
+            const response = await axios.get(loadOptionsUrl, {
                 params: { search: inputValue },
             });
 
@@ -46,37 +47,113 @@ const AsyncSelectInput = ({
         }
     };
 
-    const { store } = usePage().props;
-    const themeColor = store?.theme_color || "#ea580c";
-
     const customStyles = {
         control: (provided, state) => ({
             ...provided,
-            borderColor: error ? "#ef4444" : "#d1d5db", // red-500 or gray-300
-            borderRadius: "0.5rem", // rounded-lg
+            minHeight: "46px",
+            borderColor: error
+                ? "#ef4444"
+                : state.isFocused
+                  ? "var(--color-primary)"
+                  : "var(--color-stroke)",
+            borderRadius: "1rem",
             paddingTop: "2px",
             paddingBottom: "2px",
-            backgroundColor: "#ffffff", // gray-50
-            boxShadow: state.isFocused ? `0 0 0 2px ${themeColor}` : "none",
+            backgroundColor: "var(--color-card)",
+            color: "var(--color-main)",
+            boxShadow: state.isFocused
+                ? "0 0 0 2px var(--color-primary)"
+                : "0 1px 2px rgba(15, 23, 42, 0.04)",
             "&:hover": {
-                borderColor: "#d1d5db",
+                borderColor: state.isFocused
+                    ? "var(--color-primary)"
+                    : error
+                      ? "#ef4444"
+                      : "var(--color-stroke-strong)",
             },
+        }),
+        valueContainer: (provided) => ({
+            ...provided,
+            paddingLeft: "10px",
+            paddingRight: "10px",
         }),
         input: (provided) => ({
             ...provided,
+            color: "var(--color-main)",
             "input:focus": {
                 boxShadow: "none",
             },
         }),
+        singleValue: (provided) => ({
+            ...provided,
+            color: "var(--color-main)",
+        }),
+        indicatorSeparator: (provided) => ({
+            ...provided,
+            backgroundColor: "var(--color-stroke)",
+        }),
+        dropdownIndicator: (provided, state) => ({
+            ...provided,
+            color: state.isFocused
+                ? "var(--color-primary)"
+                : "var(--color-muted)",
+            ":hover": {
+                color: "var(--color-primary)",
+            },
+        }),
+        clearIndicator: (provided) => ({
+            ...provided,
+            color: "var(--color-muted)",
+            ":hover": {
+                color: "var(--color-primary)",
+            },
+        }),
         placeholder: (provided) => ({
             ...provided,
-            color: "#9ca3af", // gray-400
+            color: "var(--color-muted)",
         }),
         menu: (provided) => ({
             ...provided,
+            marginTop: "8px",
             zIndex: 9999,
+            overflow: "hidden",
+            borderRadius: "1rem",
+            border: "1px solid var(--color-stroke)",
+            backgroundColor: "var(--color-card)",
+            boxShadow: "0 16px 40px rgba(15, 23, 42, 0.12)",
         }),
-        menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Add this
+        menuList: (provided) => ({
+            ...provided,
+            paddingTop: "8px",
+            paddingBottom: "8px",
+        }),
+        option: (provided, state) => ({
+            ...provided,
+            margin: "0 8px",
+            borderRadius: "0.75rem",
+            cursor: "pointer",
+            backgroundColor: state.isSelected
+                ? "var(--color-primary)"
+                : state.isFocused
+                  ? "var(--color-page)"
+                  : "transparent",
+            color: state.isSelected ? "#ffffff" : "var(--color-main)",
+            fontWeight: state.isSelected ? 700 : 500,
+            ":active": {
+                backgroundColor: state.isSelected
+                    ? "var(--color-primary)"
+                    : "var(--theme-100)",
+            },
+        }),
+        noOptionsMessage: (provided) => ({
+            ...provided,
+            color: "var(--color-muted)",
+        }),
+        loadingMessage: (provided) => ({
+            ...provided,
+            color: "var(--color-muted)",
+        }),
+        menuPortal: (base) => ({ ...base, zIndex: 9999 }),
     };
 
     // Determine which mode to use
@@ -97,7 +174,11 @@ const AsyncSelectInput = ({
 
     return (
         <div className="w-full">
-            {label && <label className="block text-base mb-1">{label}</label>}
+            {label && (
+                <label className="block text-base mb-1 text-main">
+                    {label}
+                </label>
+            )}
             {isAsyncMode ? (
                 <AsyncSelect
                     {...commonProps}

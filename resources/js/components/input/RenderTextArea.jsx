@@ -25,7 +25,11 @@ const RenderTextArea = ({
 }) => {
     return (
         <div className="w-full">
-            {label && <label className="block text-base mb-1">{label}</label>}
+            {label && (
+                <label className="block text-base mb-1 text-main">
+                    {label}
+                </label>
+            )}
 
             <textarea
                 id={name}
@@ -35,10 +39,11 @@ const RenderTextArea = ({
                 required={required}
                 value={value || ""}
                 className={`
-                    w-full min-h-[100px] border border-gray-300 rounded-lg px-4 py-2
-                    bg-white placeholder-gray-400
-                    focus:outline-none focus:ring-2 focus:ring-theme-500
-                    ${readOnly ? "bg-gray-100 text-gray-500" : ""}
+                    w-full min-h-25 rounded-2xl border px-4 py-3
+                    bg-card text-main border-stroke placeholder:text-muted
+                    shadow-sm transition-colors
+                    focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+                    ${readOnly ? "bg-page text-muted cursor-not-allowed" : ""}
                     ${error ? "border-red-500 focus:ring-red-500" : ""}
                     ${className}
                 `}

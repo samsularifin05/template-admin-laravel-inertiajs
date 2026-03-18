@@ -18,6 +18,8 @@ import {
     IconWorld,
     IconLock,
     IconKey,
+    IconLogout,
+    IconUserCircle,
 } from "@tabler/icons-react";
 import LogoImg from "../../assets/images/logo.jpg";
 import AvatarImg from "../../assets/images/Avatar.png";
@@ -168,7 +170,7 @@ export default function Sidebar() {
                     className="fixed inset-0 bg-black/50 z-40"
                     onClick={() => setSidebarOpen(false)}
                 />
-                <aside className="fixed inset-y-0 left-0 z-50 w-80 bg-content border-r border-stroke flex flex-col transition-transform duration-300 transform translate-x-0 shadow-premium">
+                <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-content border-r border-stroke flex flex-col transition-transform duration-300 transform translate-x-0 shadow-premium">
                     <SidebarContent
                         auth={auth}
                         menuData={menuData}
@@ -194,7 +196,7 @@ export default function Sidebar() {
 
     // Desktop Open
     return (
-        <aside className="w-80 h-screen flex flex-col bg-content border-r border-stroke transition-all duration-300">
+        <aside className="w-64 h-screen flex flex-col bg-content border-r border-stroke transition-all duration-300">
             <SidebarContent
                 auth={auth}
                 menuData={menuData}
@@ -245,16 +247,16 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
                 <button
                     onClick={handleClick}
                     style={{ paddingLeft: `${paddingLeftValue}px` }}
-                    className={`w-full flex items-center justify-between gap-3 pr-4 py-3.5 rounded-2xl text-sm transition-all duration-300 cursor-pointer ${
+                    className={`w-full flex items-center justify-between gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer ${
                         shouldHighlight
-                            ? "bg-primary/5 text-primary font-black shadow-premium-sm"
+                            ? "bg-primary/5 text-primary font-semibold"
                             : "text-main hover:bg-page font-medium"
                     }`}
                 >
                     <div className="flex items-center gap-3">
                         {Icon && (
                             <Icon
-                                size={20}
+                                size={18}
                                 className={
                                     shouldHighlight
                                         ? "text-primary"
@@ -267,9 +269,7 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
                     <IconChevronDown
                         size={16}
                         className={`transition-transform duration-300 ${
-                            isExpanded
-                                ? "rotate-0 shadow-lg"
-                                : "-rotate-90 opacity-40"
+                            isExpanded ? "rotate-0" : "-rotate-90 opacity-40"
                         } ${shouldHighlight ? "text-primary opacity-100" : "text-muted"}`}
                     />
                 </button>
@@ -278,15 +278,15 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
                     href={item.href}
                     onClick={handleClick}
                     style={{ paddingLeft: `${paddingLeftValue}px` }}
-                    className={`flex items-center gap-3 pr-4 py-3.5 rounded-2xl text-sm transition-all duration-300 cursor-pointer ${
+                    className={`flex items-center gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer ${
                         isItemActive
-                            ? "bg-primary text-white font-black shadow-premium shadow-primary/20 scale-[1.02]"
+                            ? "bg-primary text-white font-semibold shadow-premium shadow-primary/20"
                             : "text-main hover:bg-page font-medium"
                     }`}
                 >
                     {Icon && (
                         <Icon
-                            size={20}
+                            size={18}
                             className={
                                 isItemActive
                                     ? "text-white"
@@ -303,7 +303,7 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
                 <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
                         isExpanded
-                            ? "max-h-[500px] opacity-100"
+                            ? "max-h-125 opacity-100"
                             : "max-h-0 opacity-0"
                     }`}
                 >
@@ -331,68 +331,59 @@ const SidebarContent = ({
     onMenuClick,
     onClose,
     isMobile,
-}) => (
-    <>
-        {/* Header / Logo */}
-        <div className="p-6 pb-2 flex justify-between h-20 items-center">
-            <div className="flex items-center gap-3">
-                <img
-                    src={LogoImg}
-                    alt="Logo"
-                    className="h-10 w-auto object-contain"
-                />
-                <div className="bg-primary/5 px-3 py-1.5 rounded-xl border border-primary/10">
-                    <div className="text-[10px] font-black text-primary tracking-widest whitespace-nowrap uppercase">
-                        {auth?.user?.user_type === "admin" ? "ADMIN" : "USER"}{" "}
-                        PANEL
+}) => {
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+    return (
+        <>
+            {/* Header / Logo */}
+            <div className="px-4 flex justify-between h-18 items-center border-b border-stroke shrink-0">
+                <div className="flex items-center gap-2.5">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg overflow-hidden border border-stroke shrink-0">
+                        <img
+                            src={LogoImg}
+                            alt="Logo"
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                    <div>
+                        <div className="text-sm font-bold text-main leading-tight tracking-tight">
+                            Themes App
+                        </div>
+                        <div className="text-[10px] text-muted leading-tight">
+                            Admin Panel
+                        </div>
                     </div>
                 </div>
+                {isMobile && onClose && (
+                    <button
+                        onClick={onClose}
+                        className="p-1.5 rounded-lg text-muted hover:text-main hover:bg-page transition-colors"
+                    >
+                        <IconX size={18} />
+                    </button>
+                )}
             </div>
-        </div>
 
-        {/* User Profile Card */}
-        <div className="p-4 px-6 md:p-6 md:px-6">
-            <div className="bg-card rounded-2xl p-4 shadow-premium border border-stroke transition-all duration-300 hover:shadow-premium-lg">
-                <div className="flex items-center gap-3">
-                    <img
-                        src={
-                            auth?.user?.profile_photo
-                                ? `/storage/${auth?.user?.profile_photo}`
-                                : DefaultFoto
-                        }
-                        alt="User"
-                        className="w-12 h-12 rounded-xl object-cover border border-stroke"
+            {/* Navigation Menu */}
+            <nav className="flex-1 px-3 pb-4 space-y-0.5 overflow-y-auto pt-2">
+                {menuData.map((menu, index) => (
+                    <MenuItem
+                        key={index}
+                        item={menu}
+                        isActive={isActive}
+                        onMenuClick={onMenuClick}
+                        level={0}
                     />
-                    <div className="flex-1 min-w-0">
-                        <div className="font-black text-main text-sm truncate">
-                            {auth?.user?.username || "Cara Goyette"}
-                        </div>
-                        <div className="text-[11px] text-muted font-medium truncate">
-                            {auth?.user?.email || "cara.goyette@example.com"}
-                        </div>
-                    </div>
+                ))}
+            </nav>
+
+            {/* Footer */}
+            <div className="px-4 py-3 border-t border-stroke">
+                <div className="text-[10px] font-bold text-muted text-center tracking-widest uppercase opacity-40">
+                    Themes App v1.0
                 </div>
             </div>
-        </div>
-
-        {/* Navigation Menu */}
-        <nav className="flex-1 px-4 md:px-6 pb-6 space-y-2 overflow-y-auto mt-2">
-            {menuData.map((menu, index) => (
-                <MenuItem
-                    key={index}
-                    item={menu}
-                    isActive={isActive}
-                    onMenuClick={onMenuClick}
-                    level={0}
-                />
-            ))}
-        </nav>
-
-        {/* Footer */}
-        <div className="p-6 border-t border-stroke">
-            <div className="text-[10px] font-black text-muted text-center tracking-widest uppercase opacity-50">
-                Themes App v1.0
-            </div>
-        </div>
-    </>
-);
+        </>
+    );
+};

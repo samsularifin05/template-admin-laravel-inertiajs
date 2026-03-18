@@ -1,40 +1,42 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, router, useForm } from "@inertiajs/react";
+import { Link, useForm, usePage } from "@inertiajs/react";
 import {
     IconBell,
-    IconSettings,
     IconSearch,
     IconLogout,
     IconUser,
     IconMenu2,
+    IconChevronDown,
 } from "@tabler/icons-react";
 import toast from "react-hot-toast";
 import { useSidebarStore } from "@/store/sidebarStore";
+import DefaultFoto from "@/assets/images/defaultfoto.jpg";
 
 export default function Navigation() {
+    const { auth } = usePage().props;
     const [searchQuery, setSearchQuery] = useState("");
-    const [showDropdown, setShowDropdown] = useState(false);
-    const dropdownRef = useRef(null);
+    const [showUserDropdown, setShowUserDropdown] = useState(false);
+    const userDropdownRef = useRef(null);
     const { toggleSidebar } = useSidebarStore();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target)
+                userDropdownRef.current &&
+                !userDropdownRef.current.contains(event.target)
             ) {
-                setShowDropdown(false);
+                setShowUserDropdown(false);
             }
         };
 
-        if (showDropdown) {
+        if (showUserDropdown) {
             document.addEventListener("mousedown", handleClickOutside);
         }
 
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [showDropdown]);
+    }, [showUserDropdown]);
 
     const { post } = useForm();
 
@@ -49,14 +51,14 @@ export default function Navigation() {
     };
 
     return (
-        <header className="w-full bg-card border-b border-stroke flex h-18 items-center justify-between px-8 shadow-premium transition-colors duration-300">
+        <header className="w-full bg-card border-b border-stroke flex h-18 items-center justify-between px-5 shadow-premium transition-colors duration-300">
             {/* Left Side: Toggle & Search */}
-            <div className="flex items-center gap-4 flex-1 max-w-md">
+            <div className="flex items-center gap-3 flex-1 max-w-md">
                 <button
                     onClick={toggleSidebar}
-                    className="p-2 rounded-lg cursor-pointer hover:bg-page text-main focus:outline-none transition-colors"
+                    className="p-2 rounded-xl cursor-pointer hover:bg-page text-main focus:outline-none transition-colors"
                 >
-                    <IconMenu2 size={24} />
+                    <IconMenu2 size={20} />
                 </button>
 
                 {/* Search Bar */}
@@ -66,74 +68,84 @@ export default function Navigation() {
                         placeholder="Search here..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-page border border-stroke text-main rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300"
+                        className="w-full pl-10 pr-4 py-2 bg-page border border-stroke text-main rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300"
                     />
                     <IconSearch
-                        size={18}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted opacity-50"
+                        size={16}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted opacity-50"
                     />
                 </div>
             </div>
 
             {/* Right Side Icons */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
                 {/* Notification Bell */}
-                <button className="relative p-2 hover:bg-page rounded-lg transition-colors">
-                    <IconBell size={22} className="text-main" />
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-card"></span>
+                <button className="relative p-2 hover:bg-page rounded-xl transition-colors">
+                    <IconBell size={20} className="text-main" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-card"></span>
                 </button>
 
-                {/* Settings with Dropdown */}
-                <div className="relative" ref={dropdownRef}>
+                {/* Divider */}
+                <div className="w-px h-6 bg-stroke mx-2" />
+
+                {/* User Avatar + Dropdown */}
+                <div className="relative" ref={userDropdownRef}>
                     <button
                         type="button"
-                        onMouseEnter={() => setShowDropdown(true)}
-                        className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                            showDropdown
-                                ? "bg-page text-main"
-                                : "hover:bg-page text-main"
+                        onClick={() => setShowUserDropdown((v) => !v)}
+                        className={`flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition-colors focus:outline-none ${
+                            showUserDropdown ? "bg-page" : "hover:bg-page"
                         }`}
                     >
-                        <IconSettings size={22} />
+                        <img
+                            src={
+                                auth?.user?.profile_photo
+                                    ? `/storage/${auth?.user?.profile_photo}`
+                                    : DefaultFoto
+                            }
+                            alt="Avatar"
+                            className="w-7 h-7 rounded-lg object-cover border border-stroke"
+                        />
+                        <div className="hidden md:block text-left">
+                            <div className="text-xs font-semibold text-main leading-tight">
+                                {auth?.user?.username || "Admin"}
+                            </div>
+                            <div className="text-[10px] text-muted leading-tight">
+                                {auth?.user?.user_type === "admin"
+                                    ? "Administrator"
+                                    : "User"}
+                            </div>
+                        </div>
+                        <IconChevronDown
+                            size={14}
+                            className={`text-muted hidden md:block transition-transform duration-200 ${
+                                showUserDropdown ? "rotate-180" : ""
+                            }`}
+                        />
                     </button>
 
-                    {/* Dropdown Menu */}
-                    {showDropdown && (
-                        <div
-                            onMouseLeave={() => setShowDropdown(false)}
-                            className="absolute right-0 mt-2 w-56 bg-card rounded-2xl shadow-premium-lg border border-stroke py-2 z-50 overflow-hidden animate-scale-up"
-                        >
+                    {showUserDropdown && (
+                        <div className="absolute right-0 mt-2 w-52 bg-card rounded-xl shadow-premium-lg border border-stroke py-1.5 z-50 overflow-hidden">
                             <Link
                                 href="/profile"
-                                className="flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-page transition-colors"
-                                onClick={() => setShowDropdown(false)}
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-main hover:bg-page transition-colors"
+                                onClick={() => setShowUserDropdown(false)}
                             >
-                                <IconUser size={18} className="text-muted" />
+                                <IconUser size={16} className="text-muted" />
                                 <span>Profile</span>
                             </Link>
 
-                            <Link
-                                href="/admin/settings"
-                                className="flex items-center gap-3 px-4 py-3 text-sm text-main hover:bg-page transition-colors"
-                                onClick={() => setShowDropdown(false)}
-                            >
-                                <IconSettings
-                                    size={18}
-                                    className="text-muted"
-                                />
-                                <span>Settings</span>
-                            </Link>
-
-                            <hr className="my-2 border-stroke" />
+                            <hr className="my-1.5 border-stroke" />
 
                             <button
                                 type="button"
                                 onClick={(e) => {
+                                    setShowUserDropdown(false);
                                     handleLogout(e);
                                 }}
-                                className="w-full flex cursor-pointer items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50/50 transition-colors text-left"
+                                className="w-full flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50/50 transition-colors text-left"
                             >
-                                <IconLogout size={18} />
+                                <IconLogout size={16} />
                                 <span>Logout</span>
                             </button>
                         </div>

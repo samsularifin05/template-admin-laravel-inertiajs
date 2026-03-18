@@ -56,13 +56,13 @@ const AsyncSelectInput = ({
                 : state.isFocused
                   ? "var(--color-primary)"
                   : "var(--color-stroke)",
-            borderRadius: "1rem",
+            borderRadius: "0.75rem",
             paddingTop: "2px",
             paddingBottom: "2px",
             backgroundColor: "var(--color-card)",
             color: "var(--color-main)",
             boxShadow: state.isFocused
-                ? "0 0 0 2px var(--color-primary)"
+                ? "0 0 0 4px color-mix(in srgb, var(--color-primary) 20%, transparent)"
                 : "0 1px 2px rgba(15, 23, 42, 0.04)",
             "&:hover": {
                 borderColor: state.isFocused
@@ -117,7 +117,7 @@ const AsyncSelectInput = ({
             marginTop: "8px",
             zIndex: 9999,
             overflow: "hidden",
-            borderRadius: "1rem",
+            borderRadius: "0.75rem",
             border: "1px solid var(--color-stroke)",
             backgroundColor: "var(--color-card)",
             boxShadow: "0 16px 40px rgba(15, 23, 42, 0.12)",
@@ -175,7 +175,7 @@ const AsyncSelectInput = ({
     return (
         <div className="w-full">
             {label && (
-                <label className="block text-base mb-1 text-main">
+                <label className="block text-sm font-medium mb-1.5 text-main">
                     {label}
                 </label>
             )}

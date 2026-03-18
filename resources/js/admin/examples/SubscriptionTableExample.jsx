@@ -2,12 +2,9 @@ import React, { useState } from "react";
 import ProtectedLayout from "@/components/layouts/ProtectedLayout";
 import AdvancedDataTable from "@/components/common/AdvancedDataTable";
 import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
 import { createColumnHelper } from "@tanstack/react-table";
-import { IconEye, IconEdit, IconTrash, IconPlus } from "@tabler/icons-react";
-import { IconSearch } from "@tabler/icons-react";
-import { IconDotsVertical } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconPlus } from "@tabler/icons-react";
 import clsx from "clsx";
 
 // Base data used to generate a larger demo dataset
@@ -106,8 +103,93 @@ const initialSubscriptions = Array.from({ length: 100 }, (_, index) => {
 
 const columnHelper = createColumnHelper();
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+});
+
+const parseAmount = (value) => {
+    const amount = Number(String(value).replace(/[^\d.-]/g, ""));
+    return Number.isFinite(amount) ? amount : 0;
+};
+
+const formatDisplayDate = (value) => {
+    const date = new Date(value);
+    return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+    });
+};
+
+const getValidityMeta = (renewalDateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const renewalDate = new Date(renewalDateString);
+    renewalDate.setHours(0, 0, 0, 0);
+
+    const daysLeft = Math.ceil((renewalDate - today) / 86400000);
+    const normalizedProgress = Math.max(
+        0,
+        Math.min(100, Math.round((daysLeft / 365) * 100)),
+    );
+
+    if (daysLeft < 0) {
+        return {
+            daysLeft,
+            progress: 0,
+            color: "error",
+            label: "Expired",
+            toneClass: "text-red-600",
+        };
+    }
+
+    if (daysLeft <= 30) {
+        return {
+            daysLeft,
+            progress: normalizedProgress,
+            color: "error",
+            label: `${daysLeft} days left`,
+            toneClass: "text-red-600",
+        };
+    }
+
+    if (daysLeft <= 90) {
+        return {
+            daysLeft,
+            progress: normalizedProgress,
+            color: "warning",
+            label: `${daysLeft} days left`,
+            toneClass: "text-amber-600",
+        };
+    }
+
+    return {
+        daysLeft,
+        progress: normalizedProgress,
+        color: "primary",
+        label: `${daysLeft} days left`,
+        toneClass: "text-primary",
+    };
+};
+
 export default function SubscriptionTableExample() {
     const [data, setData] = useState(initialSubscriptions);
+
+    const totalSubscriptions = data.length;
+    const totalRevenue = data.reduce(
+        (sum, item) => sum + parseAmount(item.amount),
+        0,
+    );
+    const expiringSoon = data.filter((item) => {
+        const { daysLeft } = getValidityMeta(item.renewal_date);
+        return daysLeft >= 0 && daysLeft <= 30;
+    }).length;
+    const expiredCount = data.filter(
+        (item) => getValidityMeta(item.renewal_date).daysLeft < 0,
+    ).length;
 
     const handleDelete = (id) => {
         setData((prev) => prev.filter((item) => item.subscription_id !== id));
@@ -129,18 +211,23 @@ export default function SubscriptionTableExample() {
                         name={info.getValue()}
                         size="md"
                         src={info.row.original.user_image}
-                        className="rounded-xl" // Rounded square as in screenshot
+                        className="rounded-xl"
                     />
-                    <span className="font-black text-slate-700 text-sm tracking-tight">
-                        {info.getValue()}
-                    </span>
+                    <div className="min-w-0">
+                        <p className="font-semibold text-main text-sm truncate">
+                            {info.getValue()}
+                        </p>
+                        <p className="text-xs text-muted truncate">
+                            {info.row.original.service_name}
+                        </p>
+                    </div>
                 </div>
             ),
         }),
         columnHelper.accessor("service_name", {
             header: "Service",
             cell: (info) => (
-                <span className="text-slate-500 font-medium text-[13px] tracking-tight">
+                <span className="text-main/80 font-medium text-sm">
                     {info.getValue()}
                 </span>
             ),
@@ -150,15 +237,17 @@ export default function SubscriptionTableExample() {
             cell: (info) => {
                 const val = info.getValue();
                 const colors = {
-                    Standard: "bg-[#3182ce] text-white",
-                    Premium: "bg-[#f05228] text-white",
-                    Creative: "bg-[#d53f8c] text-white",
+                    Standard: "bg-primary/10 text-primary border-primary/20",
+                    Premium:
+                        "bg-amber-500/10 text-amber-600 border-amber-500/20",
+                    Creative:
+                        "bg-fuchsia-500/10 text-fuchsia-600 border-fuchsia-500/20",
                 };
                 return (
                     <div
                         className={clsx(
-                            "inline-flex items-center px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm",
-                            colors[val] || "bg-slate-500 text-white",
+                            "inline-flex items-center rounded-lg border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                            colors[val] || "bg-page text-muted border-stroke",
                         )}
                     >
                         {val}
@@ -169,51 +258,40 @@ export default function SubscriptionTableExample() {
         columnHelper.accessor("amount", {
             header: "Amount",
             cell: (info) => (
-                <span className="font-black text-slate-800 text-sm tracking-tight">
-                    {info.getValue()}
+                <span className="font-semibold text-main text-sm">
+                    {currencyFormatter.format(parseAmount(info.getValue()))}
                 </span>
             ),
         }),
         columnHelper.accessor("purchase_date", {
             header: "Purchase Date",
-            cell: (info) => {
-                const date = new Date(info.getValue());
-                const options = {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                };
-                return (
-                    <span className="text-slate-500 font-medium text-[13px] tracking-tight">
-                        {date.toLocaleDateString("en-GB", options)}
-                    </span>
-                );
-            },
+            cell: (info) => (
+                <span className="text-main/70 font-medium text-sm">
+                    {formatDisplayDate(info.getValue())}
+                </span>
+            ),
         }),
         columnHelper.accessor("renewal_date", {
             id: "validity",
             header: "Validity",
             cell: (info) => {
-                const val =
-                    info.row.original.license_type === "Premium" ? 20 : 65; // Simulated for visual matching
-                const color =
-                    info.row.original.license_type === "Premium"
-                        ? "warning"
-                        : "primary";
+                const validity = getValidityMeta(info.getValue());
 
                 return (
-                    <div className="flex items-center gap-3 w-32">
-                        <div className="w-full h-2 bg-blue-50 rounded-full overflow-hidden border border-blue-100 flex-1">
-                            <div
-                                className={clsx(
-                                    "h-full rounded-full transition-all duration-500",
-                                    color === "warning"
-                                        ? "bg-orange-400"
-                                        : "bg-blue-500",
-                                )}
-                                style={{ width: `${val}%` }}
-                            />
-                        </div>
+                    <div className="w-40 space-y-1.5">
+                        <Progress
+                            value={validity.progress}
+                            color={validity.color}
+                            className="h-2"
+                        />
+                        <p
+                            className={clsx(
+                                "text-xs font-semibold",
+                                validity.toneClass,
+                            )}
+                        >
+                            {validity.label}
+                        </p>
                     </div>
                 );
             },
@@ -222,14 +300,57 @@ export default function SubscriptionTableExample() {
 
     return (
         <ProtectedLayout title="Subscription Table">
-            <div className="space-y-10 pb-20 pt-10">
-                <div className="flex items-center justify-between px-2">
-                    <h1 className="text-4xl font-black text-slate-800 tracking-tighter">
-                        Subscription Table
-                    </h1>
-                </div>
+            <div className="space-y-6 pb-12">
+                <section className="rounded-2xl border border-stroke bg-card p-5 shadow-premium transition-colors">
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                            <h1 className="text-xl font-bold text-main tracking-tight">
+                                Subscription Management
+                            </h1>
+                            <p className="mt-1 text-sm text-muted">
+                                Pantau status lisensi, masa aktif, dan nilai
+                                langganan dalam satu tampilan.
+                            </p>
+                        </div>
 
-                <div className="px-4">
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            <div className="rounded-xl border border-stroke bg-page px-3 py-2.5">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+                                    Total
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-main">
+                                    {totalSubscriptions}
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-stroke bg-page px-3 py-2.5">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+                                    Revenue
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-main">
+                                    {currencyFormatter.format(totalRevenue)}
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2.5">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-700/80">
+                                    Expiring Soon
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-amber-700">
+                                    {expiringSoon}
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2.5">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-red-700/80">
+                                    Expired
+                                </p>
+                                <p className="mt-1 text-sm font-semibold text-red-700">
+                                    {expiredCount}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div>
                     <AdvancedDataTable
                         columns={columns}
                         data={data}
@@ -238,23 +359,24 @@ export default function SubscriptionTableExample() {
                                 {
                                     key: "create",
                                     icon: <IconPlus size={18} />,
-                                    label: "Tambah Data",
+                                    label: "Tambah Subscription",
                                     variant: "primary",
-                                    onClick: () => alert("Aksi tambah data"),
+                                    onClick: () =>
+                                        alert("Aksi tambah subscription"),
                                 },
                             ],
                             row: [
                                 {
                                     key: "edit",
                                     icon: <IconEdit size={18} />,
-                                    label: "Edit Data",
+                                    label: "Edit",
                                     onClick: ({ row }) =>
                                         alert(`Edit ${row.original.user_name}`),
                                 },
                                 {
                                     key: "delete",
                                     icon: <IconTrash size={18} />,
-                                    label: "Hapus Data",
+                                    label: "Hapus",
                                     variant: "danger",
                                     onClick: ({ row }) =>
                                         handleDelete(
@@ -263,7 +385,6 @@ export default function SubscriptionTableExample() {
                                 },
                             ],
                         }}
-                        // onBulkDelete={handleBulkDelete}
                     />
                 </div>
             </div>

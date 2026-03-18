@@ -45,7 +45,7 @@ export default function FooterSection() {
                                 }}
                             />
                         </Link>
-                        <p className="text-sm leading-relaxed mb-6 max-w-[250px]">
+                        <p className="text-sm leading-relaxed mb-6 max-w-62.5">
                             Dari Indonesia untuk dunia — bersama kita bisa
                             melangkah lebih jauh.
                         </p>

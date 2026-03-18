@@ -26,7 +26,7 @@ const RenderTextArea = ({
     return (
         <div className="w-full">
             {label && (
-                <label className="block text-base mb-1 text-main">
+                <label className="block text-sm font-medium mb-1.5 text-main">
                     {label}
                 </label>
             )}
@@ -39,12 +39,12 @@ const RenderTextArea = ({
                 required={required}
                 value={value || ""}
                 className={`
-                    w-full min-h-25 rounded-2xl border px-4 py-3
+                    w-full min-h-25 rounded-xl border px-4 py-3
                     bg-card text-main border-stroke placeholder:text-muted
                     shadow-sm transition-colors
-                    focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
+                    focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary
                     ${readOnly ? "bg-page text-muted cursor-not-allowed" : ""}
-                    ${error ? "border-red-500 focus:ring-red-500" : ""}
+                    ${error ? "border-red-500 focus:ring-red-500/20" : ""}
                     ${className}
                 `}
                 onChange={(e) => onChange(e.target.value)}

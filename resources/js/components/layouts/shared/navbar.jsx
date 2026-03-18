@@ -15,7 +15,7 @@ const Navbar = (props) => {
     const path = window.location.pathname;
 
     const [aktif, setAktif] = useState(
-        path === "/employer" ? "Employer" : "JobSeeker"
+        path === "/employer" ? "Employer" : "JobSeeker",
     );
     const [menuOpen, setMenuOpen] = useState(false);
     // Multi-language select
@@ -78,13 +78,13 @@ const Navbar = (props) => {
                     <Link href="/">
                         <img
                             src={logoPutih}
-                            className="lg:w-50 lg:h-25 h-18 w-[150px]"
+                            className="lg:w-50 lg:h-25 h-18 w-37.5"
                         />
                     </Link>
                     {/* JOB SEEKER / EMPLOYER */}
-                    <div className="relative hidden xl:flex items-center bg-gray-200 rounded-full w-[260px] h-12 p-1">
+                    <div className="relative hidden xl:flex items-center bg-gray-200 rounded-full w-65 p-1">
                         <div
-                            className="absolute top-1 left-1 w-[125px] h-10 rounded-full bg-primary transition-transform duration-300"
+                            className="absolute top-1 left-1 w-31.25 h-10 rounded-full bg-primary transition-transform duration-300"
                             style={{
                                 transform:
                                     aktif === "JobSeeker"
@@ -94,7 +94,7 @@ const Navbar = (props) => {
                         />
                         <button
                             onClick={() => goPage("JobSeeker")}
-                            className={`relative cursor-pointer z-10 flex items-center justify-center gap-2 w-[125px] h-10 transition-colors ${
+                            className={`relative cursor-pointer z-10 flex items-center justify-center gap-2 w-31.25 h-10 transition-colors ${
                                 aktif === "JobSeeker"
                                     ? "text-white"
                                     : "text-gray-600"
@@ -105,7 +105,7 @@ const Navbar = (props) => {
                         </button>
                         <button
                             onClick={() => goPage("Employer")}
-                            className={`relative cursor-pointer z-10 flex items-center justify-center gap-2 w-[125px] h-10 transition-colors ${
+                            className={`relative cursor-pointer z-10 flex items-center justify-center gap-2 w-31.25 h-10 transition-colors ${
                                 aktif === "Employer"
                                     ? "text-white"
                                     : "text-gray-600"
@@ -137,14 +137,14 @@ const Navbar = (props) => {
                     {/* Multi Language Custom Select */}
                     <div className="relative" ref={langDropdownRef}>
                         <button
-                            className="flex items-center gap-2 focus:outline-none px-2 py-1 rounded hover:bg-gray-100 min-w-[60px]"
+                            className="flex items-center gap-2 focus:outline-none px-2 py-1 rounded hover:bg-gray-100 min-w-15"
                             onClick={() => setShowLang((v) => !v)}
                         >
                             {selectedLangs.length > 0 &&
                                 (() => {
                                     const code = selectedLangs[0];
                                     const opt = langOptions.find(
-                                        (l) => l.code === code
+                                        (l) => l.code === code,
                                     );
                                     return (
                                         <span className="flex items-center gap-1 mr-1">
@@ -292,14 +292,14 @@ const Navbar = (props) => {
                     {/* Multi Language Custom Select (Mobile) */}
                     <div className="relative" ref={langDropdownRef}>
                         <button
-                            className="flex items-center gap-2 focus:outline-none px-2 py-1 rounded hover:bg-gray-100 min-w-[60px]"
+                            className="flex items-center gap-2 focus:outline-none px-2 py-1 rounded hover:bg-gray-100 min-w-15"
                             onClick={() => setShowLang((v) => !v)}
                         >
                             {selectedLangs.length > 0 &&
                                 (() => {
                                     const code = selectedLangs[0];
                                     const opt = langOptions.find(
-                                        (l) => l.code === code
+                                        (l) => l.code === code,
                                     );
                                     return (
                                         <span className="flex items-center gap-1 mr-1">
@@ -373,7 +373,7 @@ const Navbar = (props) => {
                                     ? response.user.user_type === "admin"
                                         ? "/admin/dashboard"
                                         : "/jobseeker/dashboard"
-                                    : "/register"
+                                    : "/register",
                             );
                         }}
                         className="w-full bg-primary text-white px-6 py-3 rounded-xl text-[18px] font-semibold hover:opacity-90 transition mt-2"

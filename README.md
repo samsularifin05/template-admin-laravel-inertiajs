@@ -1,59 +1,153 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Middleware Notes
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Dokumen ini mencatat middleware yang saat ini dipakai di aplikasi.
 
-## About Laravel
+### 1) Middleware Custom
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- `request.signature` -> `App\Http\Middleware\VerifyRequestSignature`
+	- Fungsi: validasi header request security (`X-Timestamp`, `X-Nonce`, `X-Signature`), cek toleransi waktu, dan anti replay (nonce cache).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- `sql.injection.guard` -> `App\Http\Middleware\PreventSqlInjection`
+	- Fungsi: deteksi pola SQL injection pada input request (query/body) dengan regex guard.
+	- Konfigurasi pattern & whitelist field ada di `config/security_guards.php`.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- `xss.guard` -> `App\Http\Middleware\PreventXss`
+	- Fungsi: deteksi pola XSS pada input request (mis. `<script>`, `javascript:`, inline event handler).
+	- Konfigurasi pattern & whitelist field ada di `config/security_guards.php`.
 
-## Learning Laravel
+### 2) Middleware Web Global
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- `App\Http\Middleware\HandleInertiaRequests`
+	- Didaftarkan di web middleware stack pada `bootstrap/app.php`.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 3) Middleware Bawaan Laravel yang Dipakai di Route
 
-## Laravel Sponsors
+- `guest`
+	- Dipakai pada grup route autentikasi guest (halaman/login process).
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- `auth`
+	- Dipakai pada grup route admin (`/admin/*`).
 
-### Premium Partners
+- `throttle`
+	- `throttle:5,1` pada `POST /login`
+	- `throttle:20,1` pada `POST /admin/logout`
+	- `throttle:60,1` pada `GET /admin/examples/async-options`
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 4) Endpoint yang Dilindungi Security Guard
 
-## Contributing
+- `POST /login`
+	- Middleware: `request.signature`, `sql.injection.guard`, `xss.guard`, `throttle:5,1`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- `POST /admin/logout`
+	- Middleware: `request.signature`, `sql.injection.guard`, `xss.guard`, `throttle:20,1`
 
-## Code of Conduct
+- `GET /admin/examples/async-options`
+	- Middleware: `request.signature`, `sql.injection.guard`, `xss.guard`, `throttle:60,1`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 5) File Referensi
 
-## Security Vulnerabilities
+- `bootstrap/app.php`
+- `routes/web.php`
+- `app/Http/Middleware/VerifyRequestSignature.php`
+- `app/Http/Middleware/PreventSqlInjection.php`
+- `app/Http/Middleware/PreventXss.php`
+- `config/security_guards.php`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## AI Quick Context (Base Project)
 
-## License
+Bagian ini dibuat untuk membantu AI/dev baru memahami fondasi project dengan cepat.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 1) Stack Utama
+
+- Backend: Laravel 12 (`laravel/framework:^12.51`) + PHP `^8.2`
+- Frontend: Inertia.js + React 19 + Vite 7
+- Styling: Tailwind CSS 4
+- HTTP Client frontend: Axios
+- Routing JS helper: Ziggy
+
+### 2) Struktur Folder Kunci
+
+- `app/Http/Controllers` -> logic endpoint/controller Laravel
+- `app/Http/Middleware` -> middleware custom security dan Inertia
+- `routes/web.php` -> route web utama (guest/auth/admin)
+- `resources/js` -> source frontend React + Inertia
+- `resources/views/app.blade.php` -> root Blade host untuk Inertia app
+- `config/security_guards.php` -> konfigurasi pattern + whitelist SQL/XSS guard
+- `database/seeders` -> seeder data awal
+
+### 3) Arsitektur Request Frontend-Backend
+
+- Frontend menambahkan security header pada request Axios (`X-Timestamp`, `X-Nonce`, `X-Signature`) lewat `resources/js/bootstrap.js`.
+- Backend memverifikasi signature + timestamp + nonce replay di middleware `VerifyRequestSignature`.
+- Endpoint sensitif juga memakai SQL guard, XSS guard, dan throttle limiter.
+
+### 4) Alur Auth Singkat
+
+- Guest:
+	- `GET /login`
+	- `POST /login` (dilindungi signature/sql/xss/throttle)
+- Auth (admin):
+	- `POST /admin/logout` (dilindungi signature/sql/xss/throttle)
+	- route admin lain ada di prefix `/admin`
+
+### 5) Command Harian
+
+- Install dependency:
+	- `composer install`
+	- `npm install`
+- Jalankan mode dev full stack:
+	- `composer run dev`
+- Build frontend:
+	- `npm run build`
+- Testing:
+	- `composer run test`
+- Seeder:
+	- `php artisan db:seed`
+
+### 6) Catatan Penting Untuk AI
+
+- Jangan ubah middleware security tanpa cek dampak login/logout dan endpoint async.
+- Jika update pattern SQL/XSS, edit di `config/security_guards.php` (bukan hardcode di middleware).
+- Untuk perubahan route sensitif, pastikan middleware minimum tetap ada:
+	- `request.signature`
+	- `sql.injection.guard`
+	- `xss.guard`
+	- `throttle`
+
+### 7) Aturan Reuse Komponen (Wajib Untuk AI)
+
+- Prinsip utama: gunakan komponen yang sudah tersedia terlebih dahulu.
+- Buat komponen baru hanya jika benar-benar tidak ada komponen existing yang bisa dipakai/di-extend.
+
+Checklist sebelum membuat komponen baru:
+
+- Cek folder komponen berikut terlebih dahulu:
+	- `resources/js/components/common`
+	- `resources/js/components/input`
+	- `resources/js/components/layouts`
+	- `resources/js/components/ui`
+	- `resources/js/components/DataTable.jsx`
+	- `resources/js/components/Modal.jsx`
+- Jika kebutuhan mirip >= 70% dengan komponen existing, lakukan extend via props, bukan duplikasi file.
+- Hindari membuat varian komponen dengan fungsi sama tapi nama berbeda.
+- Pastikan style mengikuti pola Tailwind dan naming yang sudah dipakai di project.
+
+Kapan boleh membuat komponen baru:
+
+- Tidak ada komponen existing yang memenuhi kebutuhan inti.
+- Perubahan pada komponen lama akan merusak banyak pemakaian existing.
+- Komponen baru bersifat reusable dan kemungkinan dipakai lebih dari satu halaman.
+
+Standar saat membuat komponen baru:
+
+- Lokasi file sesuai kategori (`common`, `input`, `layouts`, atau `ui`).
+- API props jelas dan konsisten dengan pola komponen existing.
+- Nama komponen deskriptif dan tidak ambigu.
+- Tambahkan contoh pemakaian minimal di halaman contoh bila relevan (`admin/examples/ComponentShowcase`).
+
+Tujuan aturan ini:
+
+- Mengurangi duplikasi komponen.
+- Mempermudah maintenance dan refactor.
+- Menjaga konsistensi UI/UX di seluruh aplikasi.
+

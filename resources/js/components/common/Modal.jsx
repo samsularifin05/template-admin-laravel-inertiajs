@@ -12,6 +12,7 @@ import { IconX } from "@tabler/icons-react";
  * @param {'scale' | 'fade' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right'} [props.animation='scale'] - Predefined animation types.
  * @param {Object} [props.variants] - Custom framer-motion variants for the modal content.
  * @param {Object} [props.transition] - Custom framer-motion transition for the modal content.
+ * @param {'top' | 'center'} [props.position='top'] - Vertical alignment of modal container.
  */
 const Modal = ({
     title,
@@ -22,6 +23,7 @@ const Modal = ({
     animation = "scale",
     variants,
     transition,
+    position = "top",
 }) => {
     useEffect(() => {
         const handleEsc = (e) => {
@@ -90,7 +92,11 @@ const Modal = ({
             ></motion.div>
 
             {/* Modal Dialog Container */}
-            <div className="flex min-h-full items-start justify-center p-4 sm:p-6 text-center">
+            <div
+                className={`flex min-h-full justify-center p-4 sm:p-6 text-center ${
+                    position === "center" ? "items-center" : "items-start"
+                }`}
+            >
                 {/* Modal Content */}
                 <motion.div
                     initial="hidden"

@@ -1,6 +1,44 @@
-import * as Icons from "@tabler/icons-react";
-import React, { useState, useMemo, useEffect, useRef } from "react";
-import { IconSearch, IconInbox } from "@tabler/icons-react";
+import React, { useMemo, useState } from "react";
+import {
+    IconAlertTriangle,
+    IconBell,
+    IconBox,
+    IconCheck,
+    IconChevronRight,
+    IconClick,
+    IconClock,
+    IconCreditCard,
+    IconEdit,
+    IconEye,
+    IconFilter,
+    IconGift,
+    IconHeart,
+    IconHome,
+    IconInbox,
+    IconInfoCircle,
+    IconKey,
+    IconLayoutDashboard,
+    IconLogin,
+    IconLogout,
+    IconMenu2,
+    IconMoon,
+    IconPlus,
+    IconReceipt,
+    IconSearch,
+    IconSettings,
+    IconShield,
+    IconShoppingBag,
+    IconShoppingCart,
+    IconStar,
+    IconSun,
+    IconTrash,
+    IconUpload,
+    IconUser,
+    IconUsers,
+    IconWallet,
+    IconWorld,
+    IconX,
+} from "@tabler/icons-react";
 
 /**
  * @param {Object} props
@@ -8,205 +46,259 @@ import { IconSearch, IconInbox } from "@tabler/icons-react";
  * @param {(value: string) => void} props.onChange
  * @param {Function} props.onClose
  */
+const ICON_ITEMS = [
+    {
+        name: "IconClick",
+        component: IconClick,
+        category: "Interface",
+        keywords: ["click", "cursor"],
+    },
+    {
+        name: "IconHome",
+        component: IconHome,
+        category: "Interface",
+        keywords: ["home"],
+    },
+    {
+        name: "IconLayoutDashboard",
+        component: IconLayoutDashboard,
+        category: "Interface",
+        keywords: ["dashboard", "layout"],
+    },
+    {
+        name: "IconSettings",
+        component: IconSettings,
+        category: "Interface",
+        keywords: ["settings", "gear"],
+    },
+    {
+        name: "IconUser",
+        component: IconUser,
+        category: "Interface",
+        keywords: ["user", "profile"],
+    },
+    {
+        name: "IconUsers",
+        component: IconUsers,
+        category: "Interface",
+        keywords: ["users", "team"],
+    },
+    {
+        name: "IconBell",
+        component: IconBell,
+        category: "Interface",
+        keywords: ["bell", "notification"],
+    },
+    {
+        name: "IconSearch",
+        component: IconSearch,
+        category: "Interface",
+        keywords: ["search"],
+    },
+    {
+        name: "IconFilter",
+        component: IconFilter,
+        category: "Interface",
+        keywords: ["filter"],
+    },
+    {
+        name: "IconInfoCircle",
+        component: IconInfoCircle,
+        category: "Interface",
+        keywords: ["info"],
+    },
+    {
+        name: "IconAlertTriangle",
+        component: IconAlertTriangle,
+        category: "Interface",
+        keywords: ["alert", "warning"],
+    },
+    {
+        name: "IconCheck",
+        component: IconCheck,
+        category: "Interface",
+        keywords: ["check", "success"],
+    },
+    {
+        name: "IconX",
+        component: IconX,
+        category: "Interface",
+        keywords: ["close", "x"],
+    },
+    {
+        name: "IconPlus",
+        component: IconPlus,
+        category: "Interface",
+        keywords: ["plus", "add"],
+    },
+    {
+        name: "IconEdit",
+        component: IconEdit,
+        category: "Interface",
+        keywords: ["edit", "pencil"],
+    },
+    {
+        name: "IconTrash",
+        component: IconTrash,
+        category: "Interface",
+        keywords: ["trash", "delete"],
+    },
+    {
+        name: "IconChevronRight",
+        component: IconChevronRight,
+        category: "Interface",
+        keywords: ["chevron", "arrow"],
+    },
+    {
+        name: "IconEye",
+        component: IconEye,
+        category: "Interface",
+        keywords: ["eye", "view"],
+    },
+    {
+        name: "IconLogin",
+        component: IconLogin,
+        category: "Auth",
+        keywords: ["login", "auth"],
+    },
+    {
+        name: "IconLogout",
+        component: IconLogout,
+        category: "Auth",
+        keywords: ["logout", "auth"],
+    },
+    {
+        name: "IconKey",
+        component: IconKey,
+        category: "Auth",
+        keywords: ["key", "password"],
+    },
+    {
+        name: "IconShield",
+        component: IconShield,
+        category: "Auth",
+        keywords: ["shield", "security"],
+    },
+    {
+        name: "IconShoppingCart",
+        component: IconShoppingCart,
+        category: "Commerce",
+        keywords: ["cart", "shopping"],
+    },
+    {
+        name: "IconShoppingBag",
+        component: IconShoppingBag,
+        category: "Commerce",
+        keywords: ["bag", "shopping"],
+    },
+    {
+        name: "IconCreditCard",
+        component: IconCreditCard,
+        category: "Commerce",
+        keywords: ["payment", "card"],
+    },
+    {
+        name: "IconWallet",
+        component: IconWallet,
+        category: "Commerce",
+        keywords: ["wallet", "money"],
+    },
+    {
+        name: "IconReceipt",
+        component: IconReceipt,
+        category: "Commerce",
+        keywords: ["receipt", "invoice"],
+    },
+    {
+        name: "IconGift",
+        component: IconGift,
+        category: "Commerce",
+        keywords: ["gift", "present"],
+    },
+    {
+        name: "IconBox",
+        component: IconBox,
+        category: "Commerce",
+        keywords: ["box", "package"],
+    },
+    {
+        name: "IconUpload",
+        component: IconUpload,
+        category: "Utility",
+        keywords: ["upload", "file"],
+    },
+    {
+        name: "IconMenu2",
+        component: IconMenu2,
+        category: "Utility",
+        keywords: ["menu", "hamburger"],
+    },
+    {
+        name: "IconClock",
+        component: IconClock,
+        category: "Utility",
+        keywords: ["clock", "time"],
+    },
+    {
+        name: "IconStar",
+        component: IconStar,
+        category: "Utility",
+        keywords: ["star", "favorite"],
+    },
+    {
+        name: "IconHeart",
+        component: IconHeart,
+        category: "Utility",
+        keywords: ["heart", "like"],
+    },
+    {
+        name: "IconWorld",
+        component: IconWorld,
+        category: "Utility",
+        keywords: ["world", "global"],
+    },
+    {
+        name: "IconSun",
+        component: IconSun,
+        category: "Utility",
+        keywords: ["sun", "light"],
+    },
+    {
+        name: "IconMoon",
+        component: IconMoon,
+        category: "Utility",
+        keywords: ["moon", "dark"],
+    },
+];
+
 const CATEGORIES = [
-    { name: "All", keywords: [] },
-    {
-        name: "Food",
-        keywords: [
-            "food",
-            "burger",
-            "pizza",
-            "meat",
-            "cookie",
-            "bowl",
-            "chef",
-            "salt",
-            "pepper",
-            "egg",
-            "cheese",
-            "lemon",
-            "carrot",
-            "apple",
-            "banana",
-            "strawberry",
-            "cake",
-            "candy",
-            "ice-cream",
-            "soup",
-            "salad",
-            "kitchen",
-            "cutlery",
-            "fork",
-            "spoon",
-            "knife",
-            "bread",
-            "table",
-            "armchair",
-            "fish",
-            "meat",
-            "bone",
-            "egg",
-            "mushroom",
-            "leaf",
-            "carrot",
-            "corn",
-            "clover",
-        ],
-    },
-    {
-        name: "Beverage",
-        keywords: [
-            "drink",
-            "coffee",
-            "glass",
-            "bottle",
-            "cup",
-            "mug",
-            "beer",
-            "wine",
-            "tea",
-            "milk",
-            "juice",
-            "liquid",
-            "ice",
-            "lemonade",
-            "cocktail",
-            "shaker",
-            "tea",
-        ],
-    },
-    {
-        name: "Goods",
-        keywords: [
-            "soap",
-            "spray",
-            "clean",
-            "wash",
-            "box",
-            "package",
-            "gift",
-            "container",
-            "perfume",
-            "brush",
-            "pill",
-            "flask",
-            "premium",
-            "diamond",
-            "crown",
-            "sun",
-            "moon",
-        ],
-    },
-    {
-        name: "Commerce",
-        keywords: [
-            "shop",
-            "store",
-            "cart",
-            "basket",
-            "bag",
-            "shopping",
-            "sale",
-            "discount",
-            "tag",
-            "barcode",
-            "qrcode",
-            "cash",
-            "credit",
-            "card",
-            "coin",
-            "money",
-            "wallet",
-            "report",
-            "receipt",
-            "bill",
-            "percentage",
-        ],
-    },
-    {
-        name: "Interface",
-        keywords: [
-            "home",
-            "settings",
-            "tools",
-            "trash",
-            "edit",
-            "pencil",
-            "plus",
-            "minus",
-            "check",
-            "x",
-            "search",
-            "filter",
-            "star",
-            "heart",
-            "bell",
-            "alert",
-            "clock",
-            "calendar",
-            "user",
-            "users",
-            "id",
-            "profile",
-            "logout",
-            "login",
-            "key",
-            "lock",
-            "shield",
-            "chevron",
-            "arrow",
-        ],
-    },
+    "All",
+    ...Array.from(new Set(ICON_ITEMS.map((item) => item.category))),
 ];
 
 const IconPicker = ({ value, onChange, onClose }) => {
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState("All");
-    const [visibleCount, setVisibleCount] = useState(100);
-    const scrollContainerRef = useRef(null);
 
     const filteredIcons = useMemo(() => {
-        const allIconNames = Object.keys(Icons).filter(
-            (name) =>
-                name.startsWith("Icon") &&
-                (typeof Icons[name] === "function" ||
-                    typeof Icons[name] === "object"),
-        );
+        const q = search.trim().toLowerCase();
 
-        return allIconNames.filter((name) => {
-            const lowName = name.toLowerCase();
-            const matchesSearch = lowName.includes(search.toLowerCase());
+        return ICON_ITEMS.filter((item) => {
+            const matchesCategory =
+                activeTab === "All" || item.category === activeTab;
+            const matchesSearch =
+                q === "" ||
+                item.name.toLowerCase().includes(q) ||
+                item.keywords.some((keyword) => keyword.includes(q));
 
-            if (activeTab === "All") return matchesSearch;
-
-            const category = CATEGORIES.find((c) => c.name === activeTab);
-            if (!category) return matchesSearch;
-
-            const matchesCategory = category.keywords.some((keyword) =>
-                lowName.includes(keyword.toLowerCase()),
-            );
-
-            return matchesSearch && matchesCategory;
+            return matchesCategory && matchesSearch;
         });
     }, [search, activeTab]);
 
-    useEffect(() => {
-        setVisibleCount(100);
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = 0;
-        }
-    }, [activeTab, search]);
-
-    const handleScroll = (e) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.target;
-        if (scrollHeight - scrollTop <= clientHeight + 100) {
-            if (visibleCount < filteredIcons.length) {
-                setVisibleCount((prev) => prev + 100);
-            }
-        }
-    };
-
-    const iconsToShow = filteredIcons.slice(0, visibleCount);
+    const selectedItem = useMemo(
+        () => ICON_ITEMS.find((item) => item.name === value) ?? null,
+        [value],
+    );
 
     return (
         <div
@@ -232,41 +324,37 @@ const IconPicker = ({ value, onChange, onClose }) => {
                 <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide no-scrollbar">
                     {CATEGORIES.map((cat) => (
                         <button
-                            key={cat.name}
+                            key={cat}
                             type="button"
-                            onClick={() => setActiveTab(cat.name)}
+                            onClick={() => setActiveTab(cat)}
                             className={`whitespace-nowrap rounded-xl border px-3 py-1.5 text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 ${
-                                activeTab === cat.name
+                                activeTab === cat
                                     ? "border-primary bg-primary text-white shadow-premium shadow-primary/15"
                                     : "border-stroke bg-card text-main hover:border-primary/40 hover:bg-page"
                             }`}
-                            aria-pressed={activeTab === cat.name}
+                            aria-pressed={activeTab === cat}
                         >
-                            {cat.name}
+                            {cat}
                         </button>
                     ))}
                 </div>
             </div>
 
-            <div
-                ref={scrollContainerRef}
-                onScroll={handleScroll}
-                className="custom-scrollbar flex-1 overflow-y-auto p-3"
-            >
+            <div className="custom-scrollbar flex-1 overflow-y-auto p-3">
                 <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-                    {iconsToShow.map((name) => {
-                        const IconComponent = Icons[name];
-                        const isActive = value === name;
+                    {filteredIcons.map((item) => {
+                        const IconComponent = item.component;
+                        const isActive = value === item.name;
 
                         return (
                             <button
-                                key={name}
+                                key={item.name}
                                 type="button"
                                 onClick={() => {
-                                    onChange(name);
+                                    onChange(item.name);
                                     if (onClose) onClose();
                                 }}
-                                title={name}
+                                title={item.name}
                                 className={`group flex flex-col items-center justify-center rounded-xl border p-2 transition-all hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/15 ${
                                     isActive
                                         ? "border-primary bg-primary/10 text-primary shadow-sm"
@@ -275,7 +363,7 @@ const IconPicker = ({ value, onChange, onClose }) => {
                             >
                                 <IconComponent size={24} />
                                 <span className="mt-1.5 w-full truncate text-center text-[8px] transition-colors group-hover:text-primary">
-                                    {name.replace("Icon", "")}
+                                    {item.name.replace("Icon", "")}
                                 </span>
                             </button>
                         );
@@ -290,15 +378,6 @@ const IconPicker = ({ value, onChange, onClose }) => {
                         </p>
                     </div>
                 )}
-
-                {visibleCount < filteredIcons.length && (
-                    <div className="py-4 text-center">
-                        <p className="text-[10px] font-medium text-muted">
-                            Scroll ke bawah untuk memuat lebih banyak (
-                            {filteredIcons.length - visibleCount} sisa)
-                        </p>
-                    </div>
-                )}
             </div>
 
             <div className="flex shrink-0 items-center justify-between border-t border-stroke bg-page px-3 py-2">
@@ -310,15 +389,18 @@ const IconPicker = ({ value, onChange, onClose }) => {
                         <span className="text-[10px] text-muted">
                             Terpilih:
                         </span>
-                        {(() => {
-                            const SelectedIcon = Icons[value];
-                            return SelectedIcon ? (
-                                <SelectedIcon
-                                    size={14}
-                                    className="text-primary"
-                                />
-                            ) : null;
-                        })()}
+                        {selectedItem
+                            ? (() => {
+                                  const SelectedIcon = selectedItem.component;
+
+                                  return (
+                                      <SelectedIcon
+                                          size={14}
+                                          className="text-primary"
+                                      />
+                                  );
+                              })()
+                            : null}
                         <span className="text-[10px] font-bold text-main">
                             {value.replace("Icon", "")}
                         </span>

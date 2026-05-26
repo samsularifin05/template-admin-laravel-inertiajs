@@ -1,9 +1,6 @@
 import React, { useEffect } from "react";
 import { Head } from "@inertiajs/react";
-import Navbar from "./shared/navbar";
-import FooterSection from "./shared/footer";
 import { Toaster } from "react-hot-toast";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const PublicLayout = ({
     children,
@@ -17,15 +14,7 @@ const PublicLayout = ({
     return (
         <React.Fragment>
             <Head title={title} />
-            {blank ? (
-                children
-            ) : (
-                <div className="bg-white">
-                    <Navbar />
-                    {children}
-                    <FooterSection />
-                </div>
-            )}
+            {blank ? children : <div className="bg-white">{children}</div>}
 
             <Toaster position="top-right" reverseOrder={false} />
         </React.Fragment>

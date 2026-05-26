@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import ProtectedLayout from "@/components/layouts/ProtectedLayout";
 import Button from "@/components/common/Button";
 import TextInput from "@/components/input/RenderTextInput";
@@ -9,8 +9,6 @@ import ToggleCheckbox from "@/components/input/ToggleCheckbox";
 import Modal from "@/components/common/Modal";
 import DataTable from "@/components/common/DataTable";
 import Tooltip from "@/components/common/Tooltip";
-import IconPicker from "@/components/common/IconPicker";
-import * as Icons from "@tabler/icons-react";
 import {
     IconLayoutDashboard,
     IconClick,
@@ -27,6 +25,8 @@ import {
 import { AnimatePresence } from "framer-motion";
 import ThemeSwitcher from "@/components/common/ThemeSwitcher";
 import AdvancedDataTable from "@/components/common/AdvancedDataTable";
+
+const IconPicker = lazy(() => import("@/components/common/IconPicker"));
 
 export default function ComponentShowcase() {
     const [textRp, setRp] = useState("");
@@ -59,8 +59,6 @@ export default function ComponentShowcase() {
         { name: "Jane Smith", email: "jane@example.com", role: "Manager" },
         { name: "Bob Johnson", email: "bob@example.com", role: "User" },
     ];
-
-    const SelectedIconComponent = Icons[selectedIcon] || IconClick;
 
     return (
         <ProtectedLayout title="Component Showcase">
@@ -228,14 +226,14 @@ export default function ComponentShowcase() {
                         <div className="flex-1 space-y-4">
                             <div className="flex items-center gap-4 rounded-xl border border-stroke bg-page p-4">
                                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary shadow-sm">
-                                    <SelectedIconComponent size={34} />
+                                    <IconClick size={34} />
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-main">
                                         {selectedIcon}
                                     </p>
                                     <p className="text-xs text-muted">
-                                        Selected Icon Name
+                                        Selected Icon Name (preview in picker)
                                     </p>
                                 </div>
                             </div>
@@ -275,11 +273,19 @@ export default function ComponentShowcase() {
                                 onClose={() => setIsModalOpen(false)}
                                 width="max-w-2xl"
                             >
-                                <IconPicker
-                                    value={selectedIcon}
-                                    onChange={setSelectedIcon}
-                                    onClose={() => setIsModalOpen(false)}
-                                />
+                                <Suspense
+                                    fallback={
+                                        <div className="p-4 text-sm text-muted">
+                                            Loading icon picker...
+                                        </div>
+                                    }
+                                >
+                                    <IconPicker
+                                        value={selectedIcon}
+                                        onChange={setSelectedIcon}
+                                        onClose={() => setIsModalOpen(false)}
+                                    />
+                                </Suspense>
                             </Modal>
                         )}
                     </AnimatePresence>

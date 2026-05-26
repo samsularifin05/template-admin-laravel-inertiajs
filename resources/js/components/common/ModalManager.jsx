@@ -1,10 +1,6 @@
 import React from "react";
 import { useModalStore } from "../../store/modalStore";
 import Modal from "./Modal";
-import BranchForm from "../../admin/branches/Form";
-import ProductForm from "../../admin/products/Form";
-import UserForm from "../../admin/users/Form";
-import MemberForm from "../../admin/members/MemberForm";
 
 /**
  * @typedef {Object} ModalConfig
@@ -51,14 +47,7 @@ const ModalManager = () => {
 
     return (
         <>
-            {renderModal("branch_form", BranchForm, "Manage Cabang")}
-            {renderModal("product_form", ProductForm, "Manage Produk", {
-                width: "max-w-4xl",
-            })}
-            {renderModal("user_form", UserForm, "Manage User")}
-            {renderModal("member_form", MemberForm, "Kelola Member", {
-                width: "max-w-2xl",
-            })}
+
         </>
     );
 };

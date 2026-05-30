@@ -18,7 +18,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->prefix('admin')->group(function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->middleware(['request.signature', 'sql.injection.guard', 'xss.guard', 'throttle:20,1'])
+        ->middleware([ 'sql.injection.guard', 'xss.guard', 'throttle:20,1'])
         ->name('logout');
 
     Route::get('/dashboard', function () {

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Services\EncryptService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +16,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        $encrypt = new EncryptService();
         User::factory()->create([
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'username' => 'testuser',
+            'password' => bcrypt('password'),
+            'email' => $encrypt->doEncrypt('test@example.com'),
+            'no_hp' => $encrypt->doEncrypt('08123456789'),
+            'role' => 'admin',
         ]);
     }
 }

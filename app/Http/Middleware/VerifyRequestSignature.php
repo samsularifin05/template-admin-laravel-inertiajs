@@ -19,12 +19,22 @@ class VerifyRequestSignature
         $signature = (string) $request->header('X-Signature', '');
 
         if ($timestamp === '' || $nonce === '' || $signature === '') {
+            if ($request->header('X-Inertia')) {
+                return redirect()->back()->withErrors([
+                    'signature' => 'Missing request security headers.'
+                ]);
+            }
             return response()->json([
                 'message' => 'Missing request security headers.',
             ], 401);
         }
 
         if (!ctype_digit($timestamp)) {
+            if ($request->header('X-Inertia')) {
+                return redirect()->back()->withErrors([
+                    'signature' => 'Invalid timestamp header.'
+                ]);
+            }
             return response()->json([
                 'message' => 'Invalid timestamp header.',
             ], 401);
@@ -34,6 +44,11 @@ class VerifyRequestSignature
         $timestampMs = (int) $timestamp;
 
         if (abs($nowMs - $timestampMs) > self::TIMESTAMP_TOLERANCE_MS) {
+            if ($request->header('X-Inertia')) {
+                return redirect()->back()->withErrors([
+                    'signature' => 'Expired request timestamp.'
+                ]);
+            }
             return response()->json([
                 'message' => 'Expired request timestamp.',
             ], 401);
@@ -41,6 +56,11 @@ class VerifyRequestSignature
 
         $nonceKey = $this->nonceCacheKey($request, $nonce);
         if (!Cache::add($nonceKey, 1, self::NONCE_TTL_SECONDS)) {
+            if ($request->header('X-Inertia')) {
+                return redirect()->back()->withErrors([
+                    'signature' => 'Replay request detected.'
+                ]);
+            }
             return response()->json([
                 'message' => 'Replay request detected.',
             ], 401);
@@ -59,6 +79,11 @@ class VerifyRequestSignature
         $legacyExpectedSignature = hash('sha256', $legacyRawSignature);
 
         if (!hash_equals($expectedSignature, $signature) && !hash_equals($legacyExpectedSignature, $signature)) {
+            if ($request->header('X-Inertia')) {
+                return redirect()->back()->withErrors([
+                    'signature' => 'Invalid request signature.'
+                ]);
+            }
             return response()->json([
                 'message' => 'Invalid request signature.',
             ], 401);

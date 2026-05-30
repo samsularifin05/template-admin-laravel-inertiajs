@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from "react-hot-toast";
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -56,3 +57,4 @@ window.axios.interceptors.request.use(async (config) => {
 
     return config;
 });
+

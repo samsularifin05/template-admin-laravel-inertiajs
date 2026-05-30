@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    protected $table = 'tm_users';
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -18,9 +19,12 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'username',
         'name',
         'email',
         'password',
+        'role',
+        'no_hp',
     ];
 
     /**
@@ -34,10 +38,14 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'role' => 'string',
+    ];
     protected function casts(): array
     {
         return [

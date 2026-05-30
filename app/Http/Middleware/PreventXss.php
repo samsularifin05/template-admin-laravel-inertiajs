@@ -53,8 +53,13 @@ class PreventXss
             }
 
             if ($this->containsXssPattern($value)) {
+                if ($request->header('X-Inertia')) {
+                    return redirect()->back()->withErrors([
+                        $path => 'Mohon periksa kembali data yang Anda masukkan.'
+                    ]);
+                }
                 return response()->json([
-                    'message' => 'Request blocked: suspicious XSS pattern detected.',
+                    'message' => 'Mohon periksa kembali data yang Anda masukkan.',
                 ], 422);
             }
         }

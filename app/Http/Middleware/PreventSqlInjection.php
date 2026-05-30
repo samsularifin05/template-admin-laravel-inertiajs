@@ -58,8 +58,14 @@ class PreventSqlInjection
             }
 
             if ($this->containsSqlInjectionPattern($value)) {
+                // Jika request Inertia, balas error inertia agar tidak muncul modal error
+                if ($request->header('X-Inertia')) {
+                    return redirect()->back()->withErrors([
+                        $path => 'Mohon periksa kembali data yang Anda masukkan.'
+                    ]);
+                }
                 return response()->json([
-                    'message' => 'Request blocked: suspicious SQL injection pattern detected.',
+                    'message' => 'Mohon periksa kembali data yang Anda masukkan.',
                 ], 422);
             }
         }

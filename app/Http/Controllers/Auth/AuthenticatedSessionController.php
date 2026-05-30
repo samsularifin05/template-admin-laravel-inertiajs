@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\EncryptService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use App\Http\Controllers\BaseController;
 
-class AuthenticatedSessionController extends Controller
+class AuthenticatedSessionController extends BaseController
 {
+
     /**
      * Display the login view.
      */
@@ -23,19 +26,49 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $input = $request->validate([
+            'login' => ['required'], // bisa email atau no_hp
             'password' => ['required'],
         ]);
 
+        $loginValue = $input['login'];
+        $password = $input['password'];
+
+
+        // Cek login: email, no_hp, atau username
+        if (filter_var($loginValue, FILTER_VALIDATE_EMAIL)) {
+            $credentials = [
+                'email' => $this->encrypt->doEncrypt($loginValue),
+                'password' => $password,
+            ];
+        } elseif (preg_match('/^08[0-9]{8,}$/', $loginValue)) { // simple no_hp pattern
+            $credentials = [
+                'no_hp' => $this->encrypt->doEncrypt($loginValue),
+                'password' => $password,
+            ];
+        } else {
+            $credentials = [
+                'username' => $loginValue,
+                'password' => $password,
+            ];
+        }
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
+            // Ambil user yang login
+            $user = Auth::user();
+            // Simpan role dan no_hp ke session jika perlu
+            session([
+                'role' => $user->role,
+                'no_hp' => $user->no_hp,
+            ]);
 
             return redirect()->intended('/admin/dashboard');
         }
 
         throw ValidationException::withMessages([
-            'email' => 'Email atau password yang Anda masukkan salah.',
+            'login' => 'Email/no HP atau password yang Anda masukkan salah.',
         ]);
     }
 

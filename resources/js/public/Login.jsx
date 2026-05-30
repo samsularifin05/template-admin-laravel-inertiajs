@@ -3,18 +3,25 @@ import { IconLogin } from "@tabler/icons-react";
 import LogoImg from "../assets/images/logo.jpg";
 import TextInput from "@/components/input/RenderTextInput";
 import Button from "@/components/common/Button";
+import { doDecrypt } from "@/utils/encrypt";
 
 export default function Login() {
     const { data, setData, post, processing, errors } = useForm("Login", {
-        email: "",
+        login: "",
         password: "",
         remember: false,
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        post("/login");
+        try {
+            await post("/login");
+        } catch (err) {
+            console.log("Login error:", err);
+            // Clear password field on error as well
+        }
     };
+
 
     return (
         <>
@@ -42,14 +49,14 @@ export default function Login() {
 
                         {/* Login Form */}
                         <form onSubmit={handleSubmit} className="space-y-5">
-                            {/* Email Input */}
+                            {/* Login Input (Email/No HP/Username) */}
                             <TextInput
-                                label="Email Address"
-                                type="email"
-                                value={data.email}
-                                onChange={(val) => setData("email", val)}
-                                error={errors.email}
-                                placeholder="admin@example.com"
+                                label="Email / No HP / Username"
+                                type="text"
+                                value={data.login}
+                                onChange={(val) => setData("login", val)}
+                                error={errors.login}
+                                placeholder="Email, No HP, atau Username"
                                 required
                             />
 

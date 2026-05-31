@@ -1,2 +1,199 @@
 <?php
- namespace App\Services; class EncryptService { protected string $ui92h; public function __construct() { goto GvsC1; RzgD_: $yW4yu = "\x62\x33"; goto hkpdn; GvsC1: $bHpuk = "\x73\160"; goto DY_yO; wM5BG: $IH2Us = "\162\64"; goto hjFJR; hjFJR: $this->ui92h = $yW4yu . $IH2Us . $bHpuk . $JdxBf . $wyTqX; goto JAHjf; hkpdn: $JdxBf = "\x75\164"; goto wM5BG; DY_yO: $wyTqX = "\61\150"; goto RzgD_; JAHjf: } protected function encryptAscii(string $BDFEJ) : string { goto Y5dIk; zN61A: goto ycwSB; goto MOI0a; DHEnn: $SJQEa++; goto fG1Nb; kLcBW: if (!($BfRar < $CY4UX)) { goto xkljM; } goto YgJxt; CyuNE: ycwSB: goto kLcBW; pSRzG: r_Xin: goto DHEnn; IDzp9: $JILP_ = ''; goto Cq1hK; Y5dIk: $hC2LZ = str_split($this->ui92h); goto IDzp9; Cq1hK: $SJQEa = 0; goto c3LlW; WisMz: $JILP_ .= strtoupper(dechex($CX61g)); goto L8Ktf; L8Ktf: if (!($SJQEa === count($hC2LZ) - 1)) { goto r_Xin; } goto PwJRI; Uzk3O: $BfRar++; goto zN61A; YgJxt: $CX61g = ord($BDFEJ[$BfRar]) + ord($hC2LZ[$SJQEa]); goto WisMz; q5uwY: $BfRar = 0; goto CyuNE; fG1Nb: eODAD: goto Uzk3O; PwJRI: $SJQEa = 0; goto pSRzG; DHIIe: return strtoupper($JILP_); goto Ce1cA; MOI0a: xkljM: goto DHIIe; c3LlW: $CY4UX = strlen($BDFEJ); goto q5uwY; Ce1cA: } protected function decryptAscii(string $BDFEJ) : string { goto IXILw; IXILw: $hC2LZ = str_split($this->ui92h); goto tgSpb; rOQay: $BfRar += 2; goto zOXkl; iLw4h: if (!($SJQEa === count($hC2LZ) - 1)) { goto U3yNE; } goto lkkQT; lkkQT: $SJQEa = 0; goto AUVYq; zOXkl: goto uNkbt; goto UucfC; uc4ii: $CY4UX = strlen($BDFEJ); goto OzysM; spXAu: if (!($BfRar < $CY4UX)) { goto Oeo2h; } goto QJEcn; AUVYq: U3yNE: goto hqWcw; o0KDW: $SJQEa = 0; goto uc4ii; eCHNT: return $DrsKC; goto oomAD; PiuOt: uNkbt: goto spXAu; QJEcn: $x_pxH = substr($BDFEJ, $BfRar, 2); goto TZHYo; hqWcw: $SJQEa++; goto rOQay; TZHYo: $CX61g = hexdec($x_pxH) - ord($hC2LZ[$SJQEa]); goto sujGt; OzysM: $BfRar = 0; goto PiuOt; sujGt: $DrsKC .= chr($CX61g); goto iLw4h; tgSpb: $DrsKC = ''; goto o0KDW; UucfC: Oeo2h: goto eCHNT; oomAD: } protected function autoType($CN8yj) { goto DdHQ9; UmiUG: return true; goto DOoMT; Q3gXb: return false; goto jwpVJ; DOoMT: hka9X: goto B9RN0; szVbR: cRzUM: goto qi84f; jwpVJ: p55cm: goto B5zSH; B9RN0: if (!($CN8yj === "\x66\x61\154\163\145")) { goto p55cm; } goto Q3gXb; DdHQ9: if (!($CN8yj === "\164\162\165\x65")) { goto hka9X; } goto UmiUG; B5zSH: if (!(is_numeric($CN8yj) && trim((string) $CN8yj) !== '')) { goto cRzUM; } goto IPSzG; IPSzG: return strpos((string) $CN8yj, "\56") !== false ? (float) $CN8yj : (int) $CN8yj; goto szVbR; qi84f: return $CN8yj; goto b0FBn; b0FBn: } public function doEncrypt($u9JfA, array $VJD7U = []) { goto XuQQ8; TwVF_: F_W8S: goto VihjO; zM3DN: d0z3W: goto SVFIl; tmtsC: return null; goto Xne13; IsG9P: if (!is_array($u9JfA)) { goto uCsKl; } goto oyQOe; oyQOe: foreach ($u9JfA as $cycQi => $CN8yj) { goto A50dc; tk0z1: $u9JfA[$cycQi] = $this->encrypt($CN8yj, $VJD7U); goto I5oLL; O7zqB: AxON7: goto Ju6C7; jMD_b: goto Y_KPe; goto zIziK; I5oLL: Y_KPe: goto cya8T; ScOgu: goto Y_KPe; goto LArOK; A50dc: if (!in_array($cycQi, $VJD7U, true)) { goto AxON7; } goto kJman; HZfOR: if (is_array($CN8yj)) { goto Ys8fH; } goto ScOgu; kJman: goto BCzgw; goto O7zqB; Ju6C7: if (is_string($CN8yj) || is_numeric($CN8yj) || is_bool($CN8yj)) { goto ySDH7; } goto HZfOR; LArOK: ySDH7: goto evnT6; zIziK: Ys8fH: goto tk0z1; evnT6: $u9JfA[$cycQi] = $this->encryptAscii((string) $CN8yj); goto jMD_b; cya8T: BCzgw: goto uxvOI; uxvOI: } goto zM3DN; GpUNo: uCsKl: goto iV2rR; WGt0Y: foreach ($u9JfA as $cycQi => $CN8yj) { goto LEvOq; a8I6f: WEnCa: goto mxAfq; q2wvy: if (is_array($CN8yj) || is_object($CN8yj)) { goto jC22l; } goto I4kXo; SOEZ7: goto WEnCa; goto jwqKm; evFm7: if (is_string($CN8yj) || is_numeric($CN8yj) || is_bool($CN8yj)) { goto HCNwl; } goto q2wvy; vTEFW: goto St8g8; goto pwQpt; I4kXo: goto St8g8; goto IHb_Z; LEvOq: if (!in_array($cycQi, $VJD7U, true)) { goto LCeIt; } goto SOEZ7; pwQpt: jC22l: goto gf9gy; gf9gy: $u9JfA->{$cycQi} = $this->encrypt($CN8yj, $VJD7U); goto L7rAe; H5TMt: $u9JfA->{$cycQi} = $this->encryptAscii((string) $CN8yj); goto vTEFW; L7rAe: St8g8: goto a8I6f; jwqKm: LCeIt: goto evFm7; IHb_Z: HCNwl: goto H5TMt; mxAfq: } goto TwVF_; VihjO: return $u9JfA; goto b1ys_; oFreZ: if (!(is_string($u9JfA) || is_numeric($u9JfA) || is_bool($u9JfA))) { goto zolwy; } goto ZUdKF; b1ys_: HbJfO: goto N2Zqw; ZUdKF: return $this->encryptAscii((string) $u9JfA); goto wI7bQ; Xne13: dHS1B: goto oFreZ; SVFIl: return $u9JfA; goto GpUNo; iV2rR: if (!is_object($u9JfA)) { goto HbJfO; } goto WGt0Y; N2Zqw: return $u9JfA; goto hy1bF; wI7bQ: zolwy: goto IsG9P; XuQQ8: if (!($u9JfA === null)) { goto dHS1B; } goto tmtsC; hy1bF: } public function doDecrypt($u9JfA, array $VJD7U = []) { goto rj3I1; jDSJ1: VOkdI: goto HgQel; aYTgD: foreach ($u9JfA as $cycQi => $CN8yj) { goto Vei9y; lMUEJ: goto V7GAU; goto KKe0_; Vei9y: if (!in_array($cycQi, $VJD7U, true)) { goto s0vPQ; } goto lMUEJ; ZJzgv: goto dgd9u; goto PNJUS; LI74_: TnR0b: goto EpBTh; UhEyW: dgd9u: goto bCcPp; AQbJl: $u9JfA[$cycQi] = $this->decrypt($CN8yj, $VJD7U); goto UhEyW; bCcPp: V7GAU: goto I2Qd8; KKe0_: s0vPQ: goto gXl0o; gXl0o: if (is_string($CN8yj)) { goto TnR0b; } goto WqSN4; lr5rW: goto dgd9u; goto LI74_; EpBTh: $u9JfA[$cycQi] = $this->autoType($this->decryptAscii($CN8yj)); goto ZJzgv; PNJUS: MWt0c: goto AQbJl; WqSN4: if (is_array($CN8yj) || is_object($CN8yj)) { goto MWt0c; } goto lr5rW; I2Qd8: } goto BgFuH; VHXdl: if (!is_array($u9JfA)) { goto n4Rn7; } goto aYTgD; wf6xW: return $u9JfA; goto Qrlk2; dby_y: return $u9JfA; goto PP3IW; Qu3sJ: return $u9JfA; goto erKCm; zop2r: return null; goto jDSJ1; BgFuH: dORPx: goto dby_y; FXArK: oyIKb: goto Qu3sJ; erKCm: LcZA7: goto wf6xW; PP3IW: n4Rn7: goto S5vve; LG910: foreach ($u9JfA as $cycQi => $CN8yj) { goto Miw68; QLMQo: goto ycZIK; goto YDPbf; rNYY1: $u9JfA->{$cycQi} = $this->autoType($this->decryptAscii($CN8yj)); goto wZ47w; YDPbf: psmTR: goto TFthS; g6QCa: Ul3Ca: goto M2htA; aL7oU: okiph: goto HjU1s; TFthS: if (is_string($CN8yj)) { goto Y9oTt; } goto Ag95y; FMwQg: goto okiph; goto Lb81E; wZ47w: goto okiph; goto g6QCa; Ag95y: if (is_array($CN8yj) || is_object($CN8yj)) { goto Ul3Ca; } goto FMwQg; Miw68: if (!in_array($cycQi, $VJD7U, true)) { goto psmTR; } goto QLMQo; HjU1s: ycZIK: goto jAC_b; Lb81E: Y9oTt: goto rNYY1; M2htA: $u9JfA->{$cycQi} = $this->decrypt($CN8yj, $VJD7U); goto aL7oU; jAC_b: } goto FXArK; S5vve: if (!is_object($u9JfA)) { goto LcZA7; } goto LG910; uerkd: w4YtG: goto VHXdl; HgQel: if (!is_string($u9JfA)) { goto w4YtG; } goto tEH4Q; tEH4Q: return $this->autoType($this->decryptAscii($u9JfA)); goto uerkd; rj3I1: if (!($u9JfA === null)) { goto VOkdI; } goto zop2r; Qrlk2: } }
+
+namespace App\Services;
+
+class EncryptService
+{
+    protected string $key;
+
+    public function __construct()
+    {
+        $this->key = (string) env('DB_ENCRYPTION_KEY', 'C466E468E6E0EAE862D0');
+    }
+
+    protected function encryptAscii(string $str): string
+    {
+        $dataKey = str_split($this->key);
+
+        $strEnc = '';
+        $nkey = 0;
+        $jml = strlen($str);
+
+        for ($i = 0; $i < $jml; $i++) {
+            $ascii = ord($str[$i]) + ord($dataKey[$nkey]);
+            $strEnc .= strtoupper(dechex($ascii));
+
+            if ($nkey === count($dataKey) - 1) {
+                $nkey = 0;
+            }
+
+            $nkey++;
+        }
+
+        return strtoupper($strEnc);
+    }
+
+    protected function decryptAscii(string $str): string
+    {
+        $dataKey = str_split($this->key);
+
+        $strDec = '';
+        $nkey = 0;
+        $jml = strlen($str);
+
+        $i = 0;
+        while ($i < $jml) {
+            $hex = substr($str, $i, 2);
+
+            $ascii = hexdec($hex) - ord($dataKey[$nkey]);
+
+            $strDec .= chr($ascii);
+
+            if ($nkey === count($dataKey) - 1) {
+                $nkey = 0;
+            }
+
+            $nkey++;
+
+            $i += 2;
+        }
+
+        return $strDec;
+    }
+
+    protected function autoType(string $value)
+    {
+        if ($value === 'true') {
+            return true;
+        }
+
+        if ($value === 'false') {
+            return false;
+        }
+
+        if (is_numeric($value) && trim((string)$value) !== '') {
+            return strpos((string)$value, '.') !== false
+                ? (float)$value
+                : (int)$value;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public function doEncrypt(mixed $data, array $ignore = [])
+    {
+        if ($data === null) {
+            return null;
+        }
+
+        // Primitive
+        if (
+            is_string($data) ||
+            is_numeric($data) ||
+            is_bool($data)
+        ) {
+            return $this->encryptAscii((string)$data);
+        }
+
+        // Array
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (in_array($key, $ignore, true)) {
+                    continue;
+                }
+
+                if (
+                    is_string($value) ||
+                    is_numeric($value) ||
+                    is_bool($value)
+                ) {
+                    $data[$key] = $this->encryptAscii((string)$value);
+                } elseif (is_array($value)) {
+                    $data[$key] = $this->doEncrypt($value, $ignore);
+                }
+            }
+
+            return $data;
+        }
+
+        // Object
+        if (is_object($data)) {
+            foreach ($data as $key => $value) {
+                if (in_array($key, $ignore, true)) {
+                    continue;
+                }
+
+                if (
+                    is_string($value) ||
+                    is_numeric($value) ||
+                    is_bool($value)
+                ) {
+                    $data->{$key} = $this->encryptAscii((string)$value);
+                } elseif (is_array($value) || is_object($value)) {
+                    $data->{$key} = $this->doEncrypt($value, $ignore);
+                }
+            }
+
+            return $data;
+        }
+
+        return $data;
+    }
+
+    public function doDecrypt(mixed $data, array $ignore = [])
+    {
+        if ($data === null) {
+            return null;
+        }
+
+        // Primitive encrypted string
+        if (is_string($data)) {
+            return $this->autoType(
+                $this->decryptAscii($data)
+            );
+        }
+
+        // Array
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (in_array($key, $ignore, true)) {
+                    continue;
+                }
+
+                if (is_string($value)) {
+                    $data[$key] = $this->autoType(
+                        $this->decryptAscii($value)
+                    );
+                } elseif (is_array($value) || is_object($value)) {
+                    $data[$key] = $this->doDecrypt($value, $ignore);
+                }
+            }
+
+            return $data;
+        }
+
+        // Object
+        if (is_object($data)) {
+            foreach ($data as $key => $value) {
+                if (in_array($key, $ignore, true)) {
+                    continue;
+                }
+
+                if (is_string($value)) {
+                    $data->{$key} = $this->autoType(
+                        $this->decryptAscii($value)
+                    );
+                } elseif (is_array($value) || is_object($value)) {
+                    $data->{$key} = $this->doDecrypt($value, $ignore);
+                }
+            }
+
+            return $data;
+        }
+
+        return $data;
+    }
+}

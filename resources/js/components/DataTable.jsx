@@ -1,4 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
+
+// --- XSS sanitizer for pagination label ---
+function sanitizeLabel(label) {
+    // Remove script tags and event handlers (basic)
+    if (typeof label !== 'string') return '';
+    return label
+        .replace(/<\/?script[^>]*>/gi, '')
+        .replace(/on\w+\s*=\s*(["']).*?\1/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/data:text\/html/gi, '')
+        .replace(/<iframe.*?>.*?<\/iframe>/gi, '')
+        .replace(/<svg[^>]*on\w+\s*=.*?>/gi, '')
+        ;
+}
 import { createPortal } from "react-dom";
 import {
     useReactTable,
@@ -257,7 +271,7 @@ const DataTable = ({ data, columns, onAdd, title, actions = [] }) => {
                                         <div className="flex items-center gap-1">
                                             {flexRender(
                                                 header.column.columnDef.header,
-                                                header.getContext()
+                                                header.getContext(),
                                             )}
                                             {header.column.getIsSorted() ===
                                             "asc" ? (
@@ -294,7 +308,7 @@ const DataTable = ({ data, columns, onAdd, title, actions = [] }) => {
                                         >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext()
+                                                cell.getContext(),
                                             )}
                                         </td>
                                     ))}
@@ -397,7 +411,9 @@ const DataTable = ({ data, columns, onAdd, title, actions = [] }) => {
                                                     : ""
                                             }`}
                                             dangerouslySetInnerHTML={{
-                                                __html: link.label,
+                                                __html: sanitizeLabel(
+                                                    link.label,
+                                                ),
                                             }}
                                         />
                                     ))}
@@ -442,7 +458,7 @@ const DataTable = ({ data, columns, onAdd, title, actions = [] }) => {
                                                 table.getState().pagination
                                                     .pageSize,
                                             table.getFilteredRowModel().rows
-                                                .length
+                                                .length,
                                         )}
                                     </span>{" "}
                                     of{" "}

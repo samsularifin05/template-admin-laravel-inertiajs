@@ -17,6 +17,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->group(function () {
+
+    // Upload endpoint (backend validation + audit)
+    Route::post('/upload/image', [\App\Http\Controllers\UploadController::class, 'image'])
+        ->middleware(['request.signature', 'sql.injection.guard', 'xss.guard', 'throttle:10,1'])
+        ->name('upload.image');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->middleware(['sql.injection.guard', 'xss.guard', 'throttle:20,1'])
         ->name('logout');

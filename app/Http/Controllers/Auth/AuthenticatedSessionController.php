@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Services\EncryptService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
-use App\Http\Controllers\BaseController;
 
-class AuthenticatedSessionController extends BaseController
+class AuthenticatedSessionController extends Controller
 {
 
     /**

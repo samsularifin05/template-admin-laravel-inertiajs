@@ -2,7 +2,14 @@
 
 namespace App\Http\Controllers;
 
-abstract class Controller
+use App\Services\EncryptService;
+
+class Controller
 {
-    //
+    protected EncryptService $encrypt;
+
+    public function __construct()
+    {
+        $this->encrypt = new EncryptService();
+    }
 }

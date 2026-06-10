@@ -26,7 +26,7 @@ import AvatarImg from "../../assets/images/Avatar.png";
 import DefaultFoto from "../../assets/images/defaultfoto.jpg";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useIsMobile } from "@/utils/isMobile";
-import { menuAdmin } from "../menu/menu";
+import { menuAdmin } from "../menu";
 
 
 export default function Sidebar() {

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+use App\Services\EncryptService;
 
 // Dekripsi env DB_* jika perlu
 $doDecrypt = function($val) {
@@ -8,7 +9,12 @@ $doDecrypt = function($val) {
     // Hanya dekripsi jika string HEX dan panjang genap
     if (preg_match('/^[A-F0-9]+$/i', $val) && strlen($val) % 2 === 0) {
         try {
-            return app(\App\Services\EncryptService::class)->doDecrypt($val);
+            static $encryptService = null;
+            if ($encryptService === null) {
+                $encryptService = new EncryptService();
+            }
+
+            return $encryptService->doDecrypt($val);
         } catch (\Throwable $e) {
             return $val;
         }

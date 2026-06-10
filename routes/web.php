@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,6 +18,13 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->group(function () {
+
+    Route::get('/data-users', function () {
+        return redirect()->route('users.index');
+    });
+
+    Route::resource('users', UserController::class)
+        ->except(['create', 'show', 'edit']);
 
     // Upload endpoint (backend validation + audit)
     Route::post('/upload/image', [\App\Http\Controllers\UploadController::class, 'image'])

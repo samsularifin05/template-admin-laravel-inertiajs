@@ -126,8 +126,8 @@ Checklist sebelum membuat komponen baru:
 	- `resources/js/components/input`
 	- `resources/js/components/layouts`
 	- `resources/js/components/ui`
-	- `resources/js/components/DataTable.jsx`
-	- `resources/js/components/Modal.jsx`
+	- `resources/js/components/common/DataTable.jsx`
+	- `resources/js/components/common/Modal.jsx`
 - Jika kebutuhan mirip >= 70% dengan komponen existing, lakukan extend via props, bukan duplikasi file.
 - Hindari membuat varian komponen dengan fungsi sama tapi nama berbeda.
 - Pastikan style mengikuti pola Tailwind dan naming yang sudah dipakai di project.
@@ -151,3 +151,5 @@ Tujuan aturan ini:
 - Mempermudah maintenance dan refactor.
 - Menjaga konsistensi UI/UX di seluruh aplikasi.
 
+- `resources/js/components/menu/index.jsx`
+ini adalah folder menu untuk kebutuhan sidebar

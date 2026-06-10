@@ -6,11 +6,11 @@ import FormUsers from "./form";
 import { usePage } from "@inertiajs/react";
 
 const Users = () => {
-    const { users = [] } = usePage().props;
+    const { users, filters = {} } = usePage().props;
 
     return (
         <ProtectedLayout title={"Data Users"}>
-            <TableUsers users={users} />
+            <TableUsers users={users} filters={filters} />
 
             <ModalGlobal name="users-create" title="Tambah Pengguna">
                 <FormUsers modalName="users-create" />

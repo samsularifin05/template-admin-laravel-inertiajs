@@ -112,18 +112,63 @@ const DataTable = ({
     isLoading,
     emptyMessage = "No data found",
     showSearch = true,
+    searchPlaceholder = "Search subscriptions...",
+    searchValue,
+    onSearchChange,
     pagination = true,
     onBulkDelete,
     actions = [],
     selectRow = false,
+    serverPagination,
+    remote,
 }) => {
-    const [globalFilter, setGlobalFilter] = useState("");
+    const safeColumns = Array.isArray(columns) ? columns : [];
+    const safeData = Array.isArray(data) ? data : [];
+    const safeActions = Array.isArray(actions)
+        ? actions
+        : actions && typeof actions === "object"
+          ? actions
+          : [];
+
+    const remoteConfig =
+        remote && typeof remote === "object" ? remote : undefined;
+    const remotePagination =
+        remoteConfig?.pagination && typeof remoteConfig.pagination === "object"
+            ? remoteConfig.pagination
+            : serverPagination;
+
+    const isServerPagination = Boolean(
+        remoteConfig || remotePagination?.enabled,
+    );
+    const enableClientPagination = Boolean(pagination);
+    const [internalGlobalFilter, setInternalGlobalFilter] = useState("");
+    const [remoteSearchFilter, setRemoteSearchFilter] = useState(
+        remoteConfig?.search ?? searchValue ?? "",
+    );
     const [sorting, setSorting] = useState([]);
     const [rowSelection, setRowSelection] = useState({});
 
+    const hasControlledRemoteSearch =
+        remoteConfig &&
+        Object.prototype.hasOwnProperty.call(remoteConfig, "search");
+    const controlledSearchValue = remoteConfig?.search ?? searchValue ?? "";
+    const activeRemoteSearchValue = hasControlledRemoteSearch
+        ? controlledSearchValue
+        : remoteSearchFilter;
+    const handleSearchChange = remoteConfig?.onSearchChange ?? onSearchChange;
+    const resolvedShowSearch =
+        typeof remoteConfig?.searchable === "boolean"
+            ? remoteConfig.searchable
+            : showSearch;
+    const resolvedSearchPlaceholder = searchPlaceholder;
+
+    const globalFilter = isServerPagination
+        ? activeRemoteSearchValue
+        : internalGlobalFilter;
+
     const table = useReactTable({
-        data,
-        columns,
+        data: safeData,
+        columns: safeColumns,
         state: {
             globalFilter,
             sorting,
@@ -131,12 +176,14 @@ const DataTable = ({
         },
         enableRowSelection: selectRow,
         onRowSelectionChange: setRowSelection,
-        onGlobalFilterChange: setGlobalFilter,
+        onGlobalFilterChange: setInternalGlobalFilter,
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
+        ...(enableClientPagination
+            ? { getPaginationRowModel: getPaginationRowModel() }
+            : {}),
     });
 
     const selectedRows = table.getSelectedRowModel().rows;
@@ -144,32 +191,61 @@ const DataTable = ({
     const { pageIndex, pageSize } = table.getState().pagination;
     const pageCount = table.getPageCount();
     const currentPage = pageIndex + 1;
-    const startEntry = data.length === 0 ? 0 : pageIndex * pageSize + 1;
-    const endEntry = Math.min((pageIndex + 1) * pageSize, data.length);
+    const startEntry = safeData.length === 0 ? 0 : pageIndex * pageSize + 1;
+    const endEntry = Math.min((pageIndex + 1) * pageSize, safeData.length);
     const desktopPaginationItems = getPaginationItems(pageIndex, pageCount, 1);
     const mobilePaginationItems = getPaginationItems(pageIndex, pageCount, 0);
+
+    const serverCurrentPage = Number(remotePagination?.currentPage || 1);
+    const serverLastPage = Number(remotePagination?.lastPage || 1);
+    const serverTotal = Number(remotePagination?.total || safeData.length);
+    const serverFrom = Number(
+        remotePagination?.from || (safeData.length > 0 ? 1 : 0),
+    );
+    const serverTo = Number(remotePagination?.to || safeData.length);
+    const serverPerPage = Number(remotePagination?.perPage || 10);
+    const onServerPageChange =
+        typeof remotePagination?.onPageChange === "function"
+            ? remotePagination.onPageChange
+            : null;
+    const onServerPerPageChange =
+        typeof remotePagination?.onPerPageChange === "function"
+            ? remotePagination.onPerPageChange
+            : null;
+    const serverDesktopItems = getPaginationItems(
+        Math.max(serverCurrentPage - 1, 0),
+        Math.max(serverLastPage, 1),
+        1,
+    );
+    const serverMobileItems = getPaginationItems(
+        Math.max(serverCurrentPage - 1, 0),
+        Math.max(serverLastPage, 1),
+        0,
+    );
 
     // Backward compatible actions API:
     // - Legacy array format: [{ isCreate, isEdit, isDelete, ... }]
     // - New object format: { toolbar: [], row: [] }
-    const isLegacyActionsFormat = Array.isArray(actions);
+    const isLegacyActionsFormat = Array.isArray(safeActions);
     const { toolbarActions, rowActions } = useMemo(() => {
-        if (Array.isArray(actions)) {
+        if (Array.isArray(safeActions)) {
             return {
-                toolbarActions: actions.filter((action) => action?.isCreate),
-                rowActions: actions.filter(
+                toolbarActions: safeActions.filter(
+                    (action) => action?.isCreate,
+                ),
+                rowActions: safeActions.filter(
                     (action) => action?.isEdit || action?.isDelete,
                 ),
             };
         }
 
         return {
-            toolbarActions: Array.isArray(actions?.toolbar)
-                ? actions.toolbar
+            toolbarActions: Array.isArray(safeActions?.toolbar)
+                ? safeActions.toolbar
                 : [],
-            rowActions: Array.isArray(actions?.row) ? actions.row : [],
+            rowActions: Array.isArray(safeActions?.row) ? safeActions.row : [],
         };
-    }, [actions]);
+    }, [safeActions]);
 
     const hasRowActions = rowActions.length > 0;
 
@@ -194,15 +270,24 @@ const DataTable = ({
             {/* Toolbar Top */}
             <div className="flex items-center justify-between px-1">
                 <div className="flex-1">
-                    {showSearch && (
+                    {resolvedShowSearch && (
                         <div className="relative max-w-sm">
                             <input
                                 type="text"
                                 value={globalFilter ?? ""}
-                                onChange={(e) =>
-                                    setGlobalFilter(e.target.value)
-                                }
-                                placeholder="Search subscriptions..."
+                                onChange={(e) => {
+                                    if (isServerPagination) {
+                                        const nextValue = e.target.value;
+                                        if (!hasControlledRemoteSearch) {
+                                            setRemoteSearchFilter(nextValue);
+                                        }
+                                        handleSearchChange?.(nextValue);
+                                        return;
+                                    }
+
+                                    setInternalGlobalFilter(e.target.value);
+                                }}
+                                placeholder={resolvedSearchPlaceholder}
                                 className="w-full rounded-2xl border border-stroke bg-card py-2.5 pl-10 pr-4 text-xs font-semibold text-main placeholder:text-muted shadow-sm transition-all focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
                             />
                             <IconSearch
@@ -270,7 +355,8 @@ const DataTable = ({
                         <div className="flex items-center justify-between border-b border-stroke bg-card px-6 py-2 shadow-sm backdrop-blur-sm">
                             <div className="flex items-center gap-4">
                                 <span className="text-[11px] font-black uppercase tracking-[0.15em] text-primary">
-                                    {selectedCount} Selected from {data.length}
+                                    {selectedCount} Selected from{" "}
+                                    {safeData.length}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 h-9">
@@ -432,7 +518,7 @@ const DataTable = ({
                                                     <div className="mx-auto size-5 animate-pulse rounded border border-stroke bg-page" />
                                                 </Td>
                                             )}
-                                            {columns.map((_, colIdx) => (
+                                            {safeColumns.map((_, colIdx) => (
                                                 <Td
                                                     key={colIdx}
                                                     className="px-6 py-6"
@@ -561,7 +647,7 @@ const DataTable = ({
                                 <Tr>
                                     <Td
                                         colSpan={
-                                            columns.length +
+                                            safeColumns.length +
                                             (selectRow ? 1 : 0) +
                                             (hasRowActions ? 1 : 0)
                                         }
@@ -581,12 +667,18 @@ const DataTable = ({
                 </div>
 
                 {/* Pagination */}
-                {pagination && pageCount > 0 && (
+                {((isServerPagination && serverLastPage > 0) ||
+                    (!isServerPagination && pagination && pageCount > 0)) && (
                     <div className="flex flex-col gap-4 border-t border-stroke bg-card px-4 py-4 sm:px-6 sm:py-5 lg:flex-row lg:items-center lg:justify-between">
                         <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-5">
                             <div className="text-center text-[10px] font-black uppercase tracking-[0.16em] text-muted sm:text-left sm:tracking-[0.2em]">
-                                Showing {startEntry} - {endEntry} of{" "}
-                                {data.length} entries
+                                Showing{" "}
+                                {isServerPagination ? serverFrom : startEntry} -{" "}
+                                {isServerPagination ? serverTo : endEntry} of{" "}
+                                {isServerPagination
+                                    ? serverTotal
+                                    : safeData.length}{" "}
+                                entries
                             </div>
 
                             <div className="flex items-center justify-between gap-2 rounded-2xl border border-stroke bg-page px-3 py-2 text-xs font-semibold text-main sm:justify-start sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
@@ -594,12 +686,20 @@ const DataTable = ({
                                     Rows per page
                                 </span>
                                 <select
-                                    value={pageSize}
-                                    onChange={(e) =>
-                                        table.setPageSize(
-                                            Number(e.target.value),
-                                        )
+                                    value={
+                                        isServerPagination
+                                            ? serverPerPage
+                                            : pageSize
                                     }
+                                    onChange={(e) => {
+                                        const nextSize = Number(e.target.value);
+                                        if (isServerPagination) {
+                                            onServerPerPageChange?.(nextSize);
+                                            return;
+                                        }
+
+                                        table.setPageSize(nextSize);
+                                    }}
                                     className="rounded-xl border border-stroke bg-page px-3 py-2 text-xs font-bold text-main outline-none transition-all hover:border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
                                 >
                                     {[10, 25, 50, 100].map((size) => (
@@ -614,9 +714,17 @@ const DataTable = ({
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:justify-end">
                             <div className="text-center text-xs font-semibold text-muted sm:text-left">
                                 Page{" "}
-                                <span className="text-main">{currentPage}</span>{" "}
+                                <span className="text-main">
+                                    {isServerPagination
+                                        ? serverCurrentPage
+                                        : currentPage}
+                                </span>{" "}
                                 of{" "}
-                                <span className="text-main">{pageCount}</span>
+                                <span className="text-main">
+                                    {isServerPagination
+                                        ? serverLastPage
+                                        : pageCount}
+                                </span>
                             </div>
 
                             <div className="flex items-center justify-center gap-1.5 sm:hidden">
@@ -624,8 +732,18 @@ const DataTable = ({
                                     variant="default"
                                     size="lg"
                                     iconOnly
-                                    disabled={!table.getCanPreviousPage()}
-                                    onClick={() => table.previousPage()}
+                                    disabled={
+                                        isServerPagination
+                                            ? serverCurrentPage <= 1
+                                            : !table.getCanPreviousPage()
+                                    }
+                                    onClick={() =>
+                                        isServerPagination
+                                            ? onServerPageChange?.(
+                                                  serverCurrentPage - 1,
+                                              )
+                                            : table.previousPage()
+                                    }
                                     aria-label="Previous page"
                                     className="rounded-xl"
                                 >
@@ -633,7 +751,10 @@ const DataTable = ({
                                 </Button>
 
                                 <div className="flex items-center gap-1.5">
-                                    {mobilePaginationItems.map((item, index) =>
+                                    {(isServerPagination
+                                        ? serverMobileItems
+                                        : mobilePaginationItems
+                                    ).map((item, index) =>
                                         item.type === "ellipsis" ? (
                                             <span
                                                 key={
@@ -647,19 +768,33 @@ const DataTable = ({
                                         ) : (
                                             <button
                                                 key={`mobile-${item.value}`}
-                                                onClick={() =>
+                                                onClick={() => {
+                                                    if (isServerPagination) {
+                                                        onServerPageChange?.(
+                                                            item.value + 1,
+                                                        );
+                                                        return;
+                                                    }
+
                                                     table.setPageIndex(
                                                         item.value,
-                                                    )
-                                                }
+                                                    );
+                                                }}
                                                 className={clsx(
                                                     "flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-bold transition-all",
-                                                    item.value === pageIndex
+                                                    item.value ===
+                                                        (isServerPagination
+                                                            ? serverCurrentPage -
+                                                              1
+                                                            : pageIndex)
                                                         ? "bg-primary text-white shadow-premium shadow-primary/20"
                                                         : "border border-stroke bg-card text-main hover:border-primary/50 hover:bg-page",
                                                 )}
                                                 aria-current={
-                                                    item.value === pageIndex
+                                                    item.value ===
+                                                    (isServerPagination
+                                                        ? serverCurrentPage - 1
+                                                        : pageIndex)
                                                         ? "page"
                                                         : undefined
                                                 }
@@ -674,8 +809,19 @@ const DataTable = ({
                                     variant="default"
                                     size="lg"
                                     iconOnly
-                                    disabled={!table.getCanNextPage()}
-                                    onClick={() => table.nextPage()}
+                                    disabled={
+                                        isServerPagination
+                                            ? serverCurrentPage >=
+                                              serverLastPage
+                                            : !table.getCanNextPage()
+                                    }
+                                    onClick={() =>
+                                        isServerPagination
+                                            ? onServerPageChange?.(
+                                                  serverCurrentPage + 1,
+                                              )
+                                            : table.nextPage()
+                                    }
                                     aria-label="Next page"
                                     className="rounded-xl"
                                 >
@@ -688,8 +834,16 @@ const DataTable = ({
                                     variant="default"
                                     size="lg"
                                     iconOnly
-                                    disabled={!table.getCanPreviousPage()}
-                                    onClick={() => table.setPageIndex(0)}
+                                    disabled={
+                                        isServerPagination
+                                            ? serverCurrentPage <= 1
+                                            : !table.getCanPreviousPage()
+                                    }
+                                    onClick={() =>
+                                        isServerPagination
+                                            ? onServerPageChange?.(1)
+                                            : table.setPageIndex(0)
+                                    }
                                     aria-label="First page"
                                     className="rounded-xl"
                                 >
@@ -699,8 +853,18 @@ const DataTable = ({
                                     variant="default"
                                     size="lg"
                                     iconOnly
-                                    disabled={!table.getCanPreviousPage()}
-                                    onClick={() => table.previousPage()}
+                                    disabled={
+                                        isServerPagination
+                                            ? serverCurrentPage <= 1
+                                            : !table.getCanPreviousPage()
+                                    }
+                                    onClick={() =>
+                                        isServerPagination
+                                            ? onServerPageChange?.(
+                                                  serverCurrentPage - 1,
+                                              )
+                                            : table.previousPage()
+                                    }
                                     aria-label="Previous page"
                                     className="rounded-xl"
                                 >
@@ -708,41 +872,57 @@ const DataTable = ({
                                 </Button>
 
                                 <div className="flex items-center gap-1.5">
-                                    {desktopPaginationItems.map(
-                                        (item, index) =>
-                                            item.type === "ellipsis" ? (
-                                                <span
-                                                    key={
-                                                        item.key ||
-                                                        `ellipsis-${index}`
+                                    {(isServerPagination
+                                        ? serverDesktopItems
+                                        : desktopPaginationItems
+                                    ).map((item, index) =>
+                                        item.type === "ellipsis" ? (
+                                            <span
+                                                key={
+                                                    item.key ||
+                                                    `ellipsis-${index}`
+                                                }
+                                                className="flex h-10 min-w-10 items-center justify-center px-2 text-sm font-bold text-muted"
+                                            >
+                                                ...
+                                            </span>
+                                        ) : (
+                                            <button
+                                                key={item.value}
+                                                onClick={() => {
+                                                    if (isServerPagination) {
+                                                        onServerPageChange?.(
+                                                            item.value + 1,
+                                                        );
+                                                        return;
                                                     }
-                                                    className="flex h-10 min-w-10 items-center justify-center px-2 text-sm font-bold text-muted"
-                                                >
-                                                    ...
-                                                </span>
-                                            ) : (
-                                                <button
-                                                    key={item.value}
-                                                    onClick={() =>
-                                                        table.setPageIndex(
-                                                            item.value,
-                                                        )
-                                                    }
-                                                    className={clsx(
-                                                        "flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-bold transition-all",
-                                                        item.value === pageIndex
-                                                            ? "bg-primary text-white shadow-premium shadow-primary/20"
-                                                            : "border border-stroke bg-card text-main hover:border-primary/50 hover:bg-page",
-                                                    )}
-                                                    aria-current={
-                                                        item.value === pageIndex
-                                                            ? "page"
-                                                            : undefined
-                                                    }
-                                                >
-                                                    {item.value + 1}
-                                                </button>
-                                            ),
+
+                                                    table.setPageIndex(
+                                                        item.value,
+                                                    );
+                                                }}
+                                                className={clsx(
+                                                    "flex h-10 min-w-10 items-center justify-center rounded-xl px-3 text-sm font-bold transition-all",
+                                                    item.value ===
+                                                        (isServerPagination
+                                                            ? serverCurrentPage -
+                                                              1
+                                                            : pageIndex)
+                                                        ? "bg-primary text-white shadow-premium shadow-primary/20"
+                                                        : "border border-stroke bg-card text-main hover:border-primary/50 hover:bg-page",
+                                                )}
+                                                aria-current={
+                                                    item.value ===
+                                                    (isServerPagination
+                                                        ? serverCurrentPage - 1
+                                                        : pageIndex)
+                                                        ? "page"
+                                                        : undefined
+                                                }
+                                            >
+                                                {item.value + 1}
+                                            </button>
+                                        ),
                                     )}
                                 </div>
 
@@ -750,8 +930,19 @@ const DataTable = ({
                                     variant="default"
                                     size="lg"
                                     iconOnly
-                                    disabled={!table.getCanNextPage()}
-                                    onClick={() => table.nextPage()}
+                                    disabled={
+                                        isServerPagination
+                                            ? serverCurrentPage >=
+                                              serverLastPage
+                                            : !table.getCanNextPage()
+                                    }
+                                    onClick={() =>
+                                        isServerPagination
+                                            ? onServerPageChange?.(
+                                                  serverCurrentPage + 1,
+                                              )
+                                            : table.nextPage()
+                                    }
                                     aria-label="Next page"
                                     className="rounded-xl"
                                 >
@@ -761,9 +952,18 @@ const DataTable = ({
                                     variant="default"
                                     size="lg"
                                     iconOnly
-                                    disabled={!table.getCanNextPage()}
+                                    disabled={
+                                        isServerPagination
+                                            ? serverCurrentPage >=
+                                              serverLastPage
+                                            : !table.getCanNextPage()
+                                    }
                                     onClick={() =>
-                                        table.setPageIndex(pageCount - 1)
+                                        isServerPagination
+                                            ? onServerPageChange?.(
+                                                  serverLastPage,
+                                              )
+                                            : table.setPageIndex(pageCount - 1)
                                     }
                                     aria-label="Last page"
                                     className="rounded-xl"

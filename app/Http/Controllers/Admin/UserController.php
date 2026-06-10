@@ -15,21 +15,39 @@ class UserController extends Controller
 {
     public function index(): Response
     {
+        $search = trim((string) request('search', ''));
+        $perPage = (int) request('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 100], true) ? $perPage : 10;
+
         $users = User::query()
             ->select(['id', 'username', 'name', 'email', 'no_hp', 'role', 'created_at'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($innerQuery) use ($search) {
+                    $innerQuery->where('username', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%")
+                        ->orWhere('role', 'like', "%{$search}%");
+                });
+            })
             ->latest('id')
-            ->get()
-            ->map(function (User $user) {
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $users->setCollection(
+            $users->getCollection()->map(function (User $user) {
                 $user->email = $this->encrypt->doDecrypt($user->email);
                 $user->no_hp = $this->encrypt->doDecrypt($user->no_hp);
 
                 return $user;
             })
-            ->values();
+        );
 
 
         return Inertia::render('admin/datamaster/users/index', [
             'users' => $users,
+            'filters' => [
+                'search' => $search,
+                'per_page' => $perPage,
+            ],
         ]);
     }
 

@@ -7,7 +7,6 @@ import ImageUpload from "@/components/input/ImageUpload";
 import AsyncSelectInput from "@/components/input/AsyncSelectInput";
 import ToggleCheckbox from "@/components/input/ToggleCheckbox";
 import Modal from "@/components/common/Modal";
-import DataTable from "@/components/common/DataTable";
 import Tooltip from "@/components/common/Tooltip";
 import {
     IconLayoutDashboard,
@@ -24,7 +23,7 @@ import {
 } from "@tabler/icons-react";
 import { AnimatePresence } from "framer-motion";
 import ThemeSwitcher from "@/components/common/ThemeSwitcher";
-import AdvancedDataTable from "@/components/common/AdvancedDataTable";
+import DataTable from "@/components/common/DataTable";
 
 const IconPicker = lazy(() => import("@/components/common/IconPicker"));
 
@@ -590,10 +589,10 @@ export default function ComponentShowcase() {
                 {/* Data Table Section */}
                 <section className="bg-card p-8 rounded-2xl shadow-premium border border-stroke transition-colors">
                     <h2 className="text-base font-bold mb-6 text-main border-b border-stroke pb-4 flex items-center gap-3">
-                        Advanced: AdvancedDataTable (TanStack)
+                        Advanced: DataTable (TanStack)
                     </h2>
 
-                    <AdvancedDataTable
+                    <DataTable
                         columns={[
                             { header: "Name", accessorKey: "name" },
                             { header: "Email", accessorKey: "email" },

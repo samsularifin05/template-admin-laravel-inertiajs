@@ -8,7 +8,7 @@ class EncryptService
 
     public function __construct()
     {
-        $this->key = (string) env('DB_ENCRYPTION_KEY', 'C466E468E6E0EAE862D0');
+        $this->key = (string) 'b3r4sput1h';
     }
 
     protected function encryptAscii(string $str): string

@@ -14,10 +14,9 @@ import DefaultFoto from "@/assets/images/defaultfoto.jpg";
 
 export default function Navigation() {
     const { auth } = usePage().props;
-    const [searchQuery, setSearchQuery] = useState("");
     const [showUserDropdown, setShowUserDropdown] = useState(false);
     const userDropdownRef = useRef(null);
-    const { toggleSidebar } = useSidebarStore();
+    const { toggleSidebar, searchQuery, setSearchQuery } = useSidebarStore();
 
     useEffect(() => {
         const handleClickOutside = (event) => {

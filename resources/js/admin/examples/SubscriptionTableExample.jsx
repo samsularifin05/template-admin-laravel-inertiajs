@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ProtectedLayout from "@/components/layouts/ProtectedLayout";
-import AdvancedDataTable from "@/components/common/AdvancedDataTable";
+import DataTable from "@/components/common/DataTable";
 import { Avatar } from "@/components/ui/Avatar";
 import { Progress } from "@/components/ui/Progress";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -351,7 +351,7 @@ export default function SubscriptionTableExample() {
                 </section>
 
                 <div>
-                    <AdvancedDataTable
+                    <DataTable
                         columns={columns}
                         data={data}
                         actions={{

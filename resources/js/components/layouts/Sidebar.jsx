@@ -26,48 +26,49 @@ import AvatarImg from "../../assets/images/Avatar.png";
 import DefaultFoto from "../../assets/images/defaultfoto.jpg";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useIsMobile } from "@/utils/isMobile";
+import { menuAdmin } from "../menu/menu";
 
-const isAdmin = [
-    {
-        label: "Dasbor",
-        icon: IconLayoutDashboard,
-        href: "/admin/dashboard",
-    },
-
-    {
-        label: "Komponen",
-        icon: IconWorld,
-        children: [
-            {
-                label: "Showcase Utama",
-                icon: IconClipboardList,
-                href: "/admin/examples/components",
-            },
-            {
-                label: "Subscription Table",
-                icon: IconList,
-                href: "/admin/examples/subscriptions",
-            },
-        ],
-    },
-];
 
 export default function Sidebar() {
     const { auth } = usePage().props;
-    const { isOpen, toggleSidebar, setSidebarOpen } = useSidebarStore();
+    const { isOpen, setSidebarOpen, searchQuery } = useSidebarStore();
     const isMobile = useIsMobile();
 
-    let menuData = isAdmin;
+    const normalizedQuery = searchQuery.trim().toLowerCase();
 
-    // if (auth?.user) {
-    //     if (auth?.user.user_type === "admin") {
-    //         menuData = isAdmin;
-    //     } else if (auth?.user.user_type === "jobseeker") {
-    //         menuData = isJobseeker;
-    //     }
-    // } else {
-    //     menuData = isAdmin;
-    // }
+    const filterMenuTree = (items) => {
+        if (!normalizedQuery) {
+            return items;
+        }
+
+        return items
+            .map((item) => {
+                const itemLabel = (item.label || "").toLowerCase();
+                const itemMatches = itemLabel.includes(normalizedQuery);
+
+                if (!item.children?.length) {
+                    return itemMatches ? item : null;
+                }
+
+                const filteredChildren = item.children.filter((child) =>
+                    (child.label || "").toLowerCase().includes(normalizedQuery),
+                );
+
+                if (itemMatches || filteredChildren.length > 0) {
+                    return {
+                        ...item,
+                        children: itemMatches
+                            ? item.children
+                            : filteredChildren,
+                    };
+                }
+
+                return null;
+            })
+            .filter(Boolean);
+    };
+
+    const menuData = filterMenuTree(menuAdmin);
 
     const url = window.location.pathname;
 
@@ -100,6 +101,7 @@ export default function Sidebar() {
                         onMenuClick={handleMenuClick}
                         onClose={() => setSidebarOpen(false)}
                         isMobile={true}
+                        searchQuery={searchQuery}
                     />
                 </aside>
             </>
@@ -125,14 +127,20 @@ export default function Sidebar() {
                 isActive={isActive}
                 onMenuClick={handleMenuClick}
                 isMobile={false}
+                searchQuery={searchQuery}
             />
         </aside>
     );
 }
 
 // MenuItem Component with Multi-Level Support
-const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+const MenuItem = ({
+    item,
+    isActive,
+    onMenuClick,
+    level = 0,
+    searchQuery = "",
+}) => {
     const Icon = item.icon;
     const hasChildren = item.children && item.children.length > 0;
 
@@ -141,35 +149,38 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
     const hasActiveChild =
         hasChildren &&
         item.children.some((child) => child.href && isActive(child.href));
+    const [isExpanded, setIsExpanded] = useState(() => hasActiveChild);
     const shouldHighlight = isItemActive || hasActiveChild;
 
-    // Auto-expand if has active child
+    // Calculate padding for nested levels
+    const paddingLeftValue = level === 0 ? 16 : 16 + level * 24;
+
+    // Keep manual toggle state, but still allow initial open when route is active.
+    const isSearchMode = searchQuery.trim().length > 0;
+    const expanded = isSearchMode ? true : isExpanded;
+
+    const handleParentClick = (e) => {
+        if (hasChildren) {
+            e.preventDefault();
+            setIsExpanded((prev) => !prev);
+        }
+    };
+
+    // Auto-open when route enters this submenu, but don't force close/open afterwards.
     React.useEffect(() => {
         if (hasActiveChild) {
             setIsExpanded(true);
         }
     }, [hasActiveChild]);
 
-    const handleClick = (e) => {
-        if (hasChildren) {
-            e.preventDefault();
-            setIsExpanded(!isExpanded);
-        } else if (item.href) {
-            onMenuClick();
-        }
-    };
-
-    // Calculate padding for nested levels
-    const paddingLeftValue = level === 0 ? 16 : 16 + level * 24;
-
     return (
         <div className="w-full">
             {/* Parent Menu Item */}
             {hasChildren ? (
                 <button
-                    onClick={handleClick}
+                    onClick={handleParentClick}
                     style={{ paddingLeft: `${paddingLeftValue}px` }}
-                    className={`w-full flex items-center justify-between gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer ${
+                    className={`w-full flex items-center justify-between gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer focus:outline-none focus-visible:outline-none focus:ring-0 ${
                         shouldHighlight
                             ? "bg-primary/5 text-primary font-semibold"
                             : "text-main hover:bg-page font-medium"
@@ -191,16 +202,16 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
                     <IconChevronDown
                         size={16}
                         className={`transition-transform duration-300 ${
-                            isExpanded ? "rotate-0" : "-rotate-90 opacity-40"
+                            expanded ? "rotate-0" : "-rotate-90 opacity-40"
                         } ${shouldHighlight ? "text-primary opacity-100" : "text-muted"}`}
                     />
                 </button>
             ) : (
                 <Link
                     href={item.href}
-                    onClick={handleClick}
+                    onClick={onMenuClick}
                     style={{ paddingLeft: `${paddingLeftValue}px` }}
-                    className={`flex items-center gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer ${
+                    className={`flex items-center gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer focus:outline-none focus-visible:outline-none focus:ring-0 ${
                         isItemActive
                             ? "bg-primary text-white font-semibold shadow-premium shadow-primary/20"
                             : "text-main hover:bg-page font-medium"
@@ -224,9 +235,7 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
             {hasChildren && (
                 <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                        isExpanded
-                            ? "max-h-125 opacity-100"
-                            : "max-h-0 opacity-0"
+                        expanded ? "max-h-125 opacity-100" : "max-h-0 opacity-0"
                     }`}
                 >
                     <div className="mt-1 space-y-0.5 py-1">
@@ -237,6 +246,7 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
                                 isActive={isActive}
                                 onMenuClick={onMenuClick}
                                 level={level + 1}
+                                searchQuery={searchQuery}
                             />
                         ))}
                     </div>
@@ -244,7 +254,7 @@ const MenuItem = ({ item, isActive, onMenuClick, level = 0 }) => {
             )}
         </div>
     );
-};
+};;
 
 const SidebarContent = ({
     auth,
@@ -253,6 +263,7 @@ const SidebarContent = ({
     onMenuClick,
     onClose,
     isMobile,
+    searchQuery,
 }) => {
     const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
@@ -265,12 +276,12 @@ const SidebarContent = ({
                         <img
                             src={LogoImg}
                             alt="Logo"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover p-1"
                         />
                     </div>
                     <div>
                         <div className="text-sm font-bold text-main leading-tight tracking-tight">
-                            Themes App
+                            Paris Parfum Admin
                         </div>
                         <div className="text-[10px] text-muted leading-tight">
                             Admin Panel
@@ -289,21 +300,28 @@ const SidebarContent = ({
 
             {/* Navigation Menu */}
             <nav className="flex-1 px-3 pb-4 space-y-0.5 overflow-y-auto pt-2">
-                {menuData.map((menu, index) => (
-                    <MenuItem
-                        key={index}
-                        item={menu}
-                        isActive={isActive}
-                        onMenuClick={onMenuClick}
-                        level={0}
-                    />
-                ))}
+                {menuData.length > 0 ? (
+                    menuData.map((menu, index) => (
+                        <MenuItem
+                            key={index}
+                            item={menu}
+                            isActive={isActive}
+                            onMenuClick={onMenuClick}
+                            level={0}
+                            searchQuery={searchQuery}
+                        />
+                    ))
+                ) : (
+                    <div className="px-3 py-4 text-sm text-muted">
+                        Menu tidak ditemukan.
+                    </div>
+                )}
             </nav>
 
             {/* Footer */}
             <div className="px-4 py-3 border-t border-stroke">
                 <div className="text-[10px] font-bold text-muted text-center tracking-widest uppercase opacity-40">
-                    Themes App v1.0
+                    Paris Parfum Admin v1.0
                 </div>
             </div>
         </>

@@ -7,8 +7,7 @@ import { useModalGlobal } from "@/store/modalStore";
 import { router } from "@inertiajs/react";
 
 const TableUsers = ({ users, filters = {} }) => {
-    const { openModal: openCreateModal } = useModalGlobal("users-create");
-    const { openModal: openEditModal } = useModalGlobal("users-edit");
+    const { openModal } = useModalGlobal("users-form");
     const isServerPaginated =
         !Array.isArray(users) && Array.isArray(users?.data);
 
@@ -128,7 +127,7 @@ const TableUsers = ({ users, filters = {} }) => {
                         icon: <IconPlus size={18} />,
                         label: "Tambah User",
                         variant: "primary",
-                        onClick: () => openCreateModal(),
+                        onClick: () => openModal(),
                     },
                 ],
                 row: [
@@ -136,7 +135,7 @@ const TableUsers = ({ users, filters = {} }) => {
                         key: "edit",
                         icon: <IconEdit size={18} />,
                         label: "Edit",
-                        onClick: ({ row }) => openEditModal(row.original, true),
+                        onClick: ({ row }) => openModal(row.original, true),
                     },
                     {
                         key: "delete",

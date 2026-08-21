@@ -1,12 +1,12 @@
 import React, { useState, Fragment, useMemo } from "react";
+import { flexRender } from "@tanstack/react-table";
 import {
-    flexRender,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
-    useReactTable,
-} from "@tanstack/react-table";
+    useLegacyTable,
+} from "@tanstack/react-table/legacy";
 import {
     IconChevronsLeft,
     IconChevronsRight,
@@ -166,7 +166,7 @@ const DataTable = ({
         ? activeRemoteSearchValue
         : internalGlobalFilter;
 
-    const table = useReactTable({
+    const table = useLegacyTable({
         data: safeData,
         columns: safeColumns,
         state: {
@@ -268,10 +268,10 @@ const DataTable = ({
     return (
         <div className="space-y-4">
             {/* Toolbar Top */}
-            <div className="flex items-center justify-between px-1">
-                <div className="flex-1">
+            <div className="flex items-center justify-between gap-2 px-1">
+                <div className="flex-1 min-w-0">
                     {resolvedShowSearch && (
-                        <div className="relative max-w-sm">
+                        <div className="relative w-full max-w-45 sm:max-w-sm">
                             <input
                                 type="text"
                                 value={globalFilter ?? ""}
@@ -288,7 +288,7 @@ const DataTable = ({
                                     setInternalGlobalFilter(e.target.value);
                                 }}
                                 placeholder={resolvedSearchPlaceholder}
-                                className="w-full rounded-2xl border border-stroke bg-card py-2.5 pl-10 pr-4 text-xs font-semibold text-main placeholder:text-muted shadow-sm transition-all focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                                className="w-full rounded-2xl border border-stroke bg-card py-2.5 pl-10 pr-4 text-xs font-semibold text-main shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-primary/10"
                             />
                             <IconSearch
                                 size={16}
@@ -397,7 +397,7 @@ const DataTable = ({
                                         leaveFrom="transform opacity-100 scale-100"
                                         leaveTo="transform opacity-0 scale-95"
                                     >
-                                        <Menu.Items className="absolute right-0 top-full z-50 mt-2 w-48 origin-top-right overflow-hidden rounded-2xl border border-stroke bg-card text-main shadow-premium-lg divide-y divide-stroke focus:outline-none">
+                                        <Menu.Items className="absolute right-0 top-full z-50 mt-2 w-48 origin-top-right overflow-hidden rounded-2xl border border-stroke bg-card text-main shadow-premium-lg divide-y focus:outline-none">
                                             <div className="px-1 py-1">
                                                 <Menu.Item>
                                                     {({ active }) => (
@@ -700,7 +700,7 @@ const DataTable = ({
 
                                         table.setPageSize(nextSize);
                                     }}
-                                    className="rounded-xl border border-stroke bg-page px-3 py-2 text-xs font-bold text-main outline-none transition-all hover:border-primary/40 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                                    className="rounded-xl border border-stroke bg-page px-3 py-2 text-xs font-bold text-main outline-none transition-all hover:border-primary/40 focus:ring-4 focus:ring-primary/10"
                                 >
                                     {[10, 25, 50, 100].map((size) => (
                                         <option key={size} value={size}>

@@ -4,29 +4,29 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "concurrently \"vite\" \"php artisan serve\""
     },
     "devDependencies": {
-        "@tailwindcss/vite": "^4.3.0",
-        "@vitejs/plugin-react": "^5.2.0",
-        "axios": "^1.16.1",
-        "concurrently": "^9.2.1",
-        "laravel-vite-plugin": "^2.1.0",
-        "tailwindcss": "^4.3.0",
-        "vite": "^7.3.3"
+        "@tailwindcss/vite": "^4.3.3",
+        "@vitejs/plugin-react": "^6.0.5",
+        "axios": "^1.19.0",
+        "concurrently": "^10.0.4",
+        "laravel-vite-plugin": "^3.1.3",
+        "tailwindcss": "^4.3.3",
+        "vite": "^8.2.1"
     },
     "dependencies": {
         "@headlessui/react": "^2.2.10",
-        "@inertiajs/react": "^2.3.24",
-        "@tabler/icons-react": "^3.44.0",
-        "@tanstack/react-table": "^8.21.3",
+        "@inertiajs/react": "^3.6.1",
+        "@tabler/icons-react": "^3.46.0",
+        "@tanstack/react-table": "^9.0.1",
         "clsx": "^2.1.1",
-        "framer-motion": "^12.40.0",
-        "react": "^19.2.6",
-        "react-dom": "^19.2.6",
+        "framer-motion": "^13.0.0",
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8",
         "react-hot-toast": "^2.6.0",
         "react-select": "^5.10.2",
-        "ziggy-js": "^2.6.2",
-        "zustand": "^5.0.13"
+        "ziggy-js": "^2.6.3",
+        "zustand": "^5.0.14"
     }
 }

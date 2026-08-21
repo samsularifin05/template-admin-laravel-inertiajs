@@ -17,13 +17,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $encrypt = new EncryptService();
-        User::factory()->create([
-            'name' => 'Test User',
-            'username' => 'testuser',
-            'password' => bcrypt('password'),
-            'email' => $encrypt->doEncrypt('test@example.com'),
-            'no_hp' => $encrypt->doEncrypt('08123456789'),
-            'role' => 'admin',
-        ]);
+        User::query()->firstOrCreate(
+            ['username' => 'testuser'],
+            [
+                'name' => 'Test User',
+                'password' => bcrypt('password'),
+                'email' => $encrypt->doEncrypt('test@example.com'),
+                'no_hp' => $encrypt->doEncrypt('08123456789'),
+                'role' => 'admin',
+            ]
+        );
     }
 }

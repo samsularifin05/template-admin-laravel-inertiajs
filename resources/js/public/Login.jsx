@@ -11,6 +11,8 @@ export default function Login() {
         password: "",
         remember: false,
     });
+    const globalError =
+        errors?.signature || errors?.message || errors?.auth || null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -49,6 +51,12 @@ export default function Login() {
 
                         {/* Login Form */}
                         <form onSubmit={handleSubmit} className="space-y-5">
+                            {globalError && (
+                                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                    {globalError}
+                                </div>
+                            )}
+
                             {/* Login Input (Email/No HP/Username) */}
                             <TextInput
                                 label="Email / No HP / Username"

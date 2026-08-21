@@ -85,15 +85,19 @@ export default function Sidebar() {
         }
     };
 
-    // Mobile Overlay
-    if (isMobile && isOpen) {
+    // Mobile Overlay & Sidebar
+    if (isMobile) {
         return (
             <>
                 <div
-                    className="fixed inset-0 bg-black/50 z-40"
+                    className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
+                        isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                    }`}
                     onClick={() => setSidebarOpen(false)}
                 />
-                <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-content border-r border-stroke flex flex-col transition-transform duration-300 transform translate-x-0 shadow-premium">
+                <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-content border-r border-stroke flex flex-col transition-transform duration-300 transform shadow-premium ${
+                    isOpen ? "translate-x-0" : "-translate-x-full"
+                }`}>
                     <SidebarContent
                         auth={auth}
                         menuData={menuData}
@@ -106,11 +110,6 @@ export default function Sidebar() {
                 </aside>
             </>
         );
-    }
-
-    // Mobile Closed
-    if (isMobile && !isOpen) {
-        return null;
     }
 
     // Desktop Closed
@@ -180,7 +179,7 @@ const MenuItem = ({
                 <button
                     onClick={handleParentClick}
                     style={{ paddingLeft: `${paddingLeftValue}px` }}
-                    className={`w-full flex items-center justify-between gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer focus:outline-none focus-visible:outline-none focus:ring-0 ${
+                    className={`w-full flex items-center justify-between gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer focus:outline-none focus:ring-0 ${
                         shouldHighlight
                             ? "bg-primary/5 text-primary font-semibold"
                             : "text-main hover:bg-page font-medium"
@@ -211,7 +210,7 @@ const MenuItem = ({
                     href={item.href}
                     onClick={onMenuClick}
                     style={{ paddingLeft: `${paddingLeftValue}px` }}
-                    className={`flex items-center gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer focus:outline-none focus-visible:outline-none focus:ring-0 ${
+                    className={`flex items-center gap-3 pr-3 py-2 rounded-xl text-sm transition-all duration-300 cursor-pointer focus:outline-none focus:ring-0 ${
                         isItemActive
                             ? "bg-primary text-white font-semibold shadow-premium shadow-primary/20"
                             : "text-main hover:bg-page font-medium"

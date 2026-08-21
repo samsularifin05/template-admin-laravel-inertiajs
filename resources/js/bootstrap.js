@@ -28,15 +28,29 @@ function normalizeRequestUrl(url) {
     }
 }
 
-window.axios.interceptors.request.use(async (config) => {
+function isSameOrigin(url) {
+    if (!url) {
+        return true;
+    }
+
+    try {
+        const parsed = new URL(url, window.location.origin);
+
+        return parsed.origin === window.location.origin;
+    } catch {
+        return false;
+    }
+}
+
+async function createSecurityHeaders(method, url) {
     const hasCryptoSubtle = typeof crypto !== "undefined" && !!crypto.subtle;
     const nonce =
         typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
             ? crypto.randomUUID()
             : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const timestamp = Date.now().toString();
-    const method = (config.method ?? "get").toUpperCase();
-    const url = normalizeRequestUrl(config.url ?? "");
+    const normalizedMethod = (method ?? "GET").toUpperCase();
+    const normalizedUrl = normalizeRequestUrl(url);
 
     // CSRF token is included to bind signature to current browser session.
     const csrf =
@@ -45,16 +59,74 @@ window.axios.interceptors.request.use(async (config) => {
             ?.getAttribute("content") ?? "";
 
     // Body is excluded to avoid serializer mismatch between axios and Inertia form payloads.
-    const rawSignature = `${method}|${url}|${timestamp}|${nonce}|${csrf}`;
+    const rawSignature = `${normalizedMethod}|${normalizedUrl}|${timestamp}|${nonce}|${csrf}`;
     const signature = hasCryptoSubtle
         ? await sha256Hex(rawSignature)
         : rawSignature;
 
+    return {
+        "X-Timestamp": timestamp,
+        "X-Nonce": nonce,
+        "X-Signature": signature,
+    };
+}
+
+window.axios.interceptors.request.use(async (config) => {
+    const method = (config.method ?? "get").toUpperCase();
+    const url = normalizeRequestUrl(config.url ?? "");
+
+    if (!isSameOrigin(url)) {
+        return config;
+    }
+
+    const securityHeaders = await createSecurityHeaders(method, url);
+
     config.headers = config.headers ?? {};
-    config.headers["X-Timestamp"] = timestamp;
-    config.headers["X-Nonce"] = nonce;
-    config.headers["X-Signature"] = signature;
+    config.headers["X-Timestamp"] = securityHeaders["X-Timestamp"];
+    config.headers["X-Nonce"] = securityHeaders["X-Nonce"];
+    config.headers["X-Signature"] = securityHeaders["X-Signature"];
 
     return config;
 });
+
+const originalFetch = window.fetch?.bind(window);
+
+if (originalFetch) {
+    window.fetch = async (input, init = {}) => {
+        const requestUrl =
+            typeof input === "string"
+                ? input
+                : input instanceof URL
+                  ? input.toString()
+                  : (input?.url ?? "");
+        const method =
+            (init.method ??
+                (input instanceof Request ? input.method : "GET")) ||
+            "GET";
+
+        if (!isSameOrigin(requestUrl)) {
+            return originalFetch(input, init);
+        }
+
+        const securityHeaders = await createSecurityHeaders(method, requestUrl);
+        const mergedHeaders = new Headers(
+            input instanceof Request ? input.headers : undefined,
+        );
+
+        if (init.headers) {
+            new Headers(init.headers).forEach((value, key) => {
+                mergedHeaders.set(key, value);
+            });
+        }
+
+        Object.entries(securityHeaders).forEach(([key, value]) => {
+            mergedHeaders.set(key, value);
+        });
+
+        return originalFetch(input, {
+            ...init,
+            headers: mergedHeaders,
+        });
+    };
+}
 

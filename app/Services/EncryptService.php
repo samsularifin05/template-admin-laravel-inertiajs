@@ -46,6 +46,11 @@ class EncryptService
             $hex = substr($str, $i, 2);
 
             $ascii = hexdec($hex) - ord($dataKey[$nkey]);
+            
+            $ascii = $ascii % 256;
+            if ($ascii < 0) {
+                $ascii += 256;
+            }
 
             $strDec .= chr($ascii);
 
